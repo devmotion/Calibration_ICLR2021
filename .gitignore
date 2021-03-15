@@ -1,7 +1,12 @@
+# LaTeX files
 *.aux
 *.bbl
 *.blg
 *.log
 *.out
+*.synctex.gz
+
+# Emacs
+auto/
 
 /paper/main.pdf
