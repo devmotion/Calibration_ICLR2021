@@ -249,7 +249,7 @@ appear close to being calibrated albeit being uncalibrated according to \cref{de
     \cref{def:calibration}. Using the framework in this
     paper, on the same validation data a statistical test allows us to reject
     the null hypothesis that model $P$ is calibrated at a significance level of
-    $\alpha = 0.05$ ($p < 0.025$). See~\cref{app:ols} for details.}%
+    $\alpha = 0.05$ ($p < 0.05$). See~\cref{app:ols} for details.}%
     \label{fig:ols_motivation}
     %\vspace{-0.5\baselineskip}
 \end{figure}
@@ -681,7 +681,7 @@ shows a decreased test power although being computationally much more efficient.
 
 \begin{figure}[!hbtp]
     \centering
-    \includegraphics[scale=0.35]{figures/synthetic/tests_d=10.pdf}
+    \includegraphics[scale=0.35]{figures/synthetic/tests_dim=10.pdf}
     \caption{Empirical test errors for 500 data sets of $n \in \{4, 16, 64, 256, 1024\}$
     samples from models with targets of dimension $d = 10$. The dashed black line
     indicates the set signficance level $\alpha = 0.05$.}%
@@ -691,16 +691,16 @@ shows a decreased test power although being computationally much more efficient.
 
 \begin{figure}[!hbtp]
     \centering
-    \includegraphics[scale=0.07]{figures/friedman/statsplot_zoom.png}
+    \includegraphics[scale=0.35]{figures/friedman/statsplot_zoom.pdf}
     \caption{Mean squared error (MSE), average negative log-likelihood (NLL),
-    $\widehat{\mathrm{SKCE}}_k$ (SKCE), and $p$-value approximation ($p$-value) of
+    $\widehat{\mathrm{SKCE}}_k$ (SKCE (biased)), and $p$-value approximation ($p$-value) of
     ten Gaussian predictive models for the Friedman~1 regression problem versus
     the number of training iterations.
-    Evaluations on the training data set (100 samples) and the test data set
-    (50 samples) are displayed in green and orange, respectively. The solid line
-    and its surrounding band represent the mean and the range of the 10\% to 90\%
-    quantile of the evaluations of the ten models, respectively. The dashed line visualizes the
-    evaluations of the ensemble models.}%
+    Evaluations on the training data set (100 samples) are displayed in green
+    and orange, and on the test data set (50 samples) in blue and purple.
+    The green and blue line and their surrounding bands represent
+    the mean and the range of the evaluations of the ten models. The orange and
+    purple lines visualize the evaluations of the ensemble models.}%
     \label{fig:friedman1_zoom}
     \vspace{-\baselineskip}
 \end{figure}
@@ -817,7 +817,7 @@ pairs of feature $X$ and target $Y$ (see~\cref{fig:ols_heatmap}).
 \end{figure}
 
 A validation data set of $n = 50$ i.i.d.\ pairs of $X$ and $Y$ is used to
-evaluate the empirical frequency
+evaluate the empirical cumulative probability
 \begin{equation*}
     n^{-1} \sum_{i=1}^n \mathbbm{1}_{[0,\tau]}\big(P(Y \leq Y_i | X = X_i)\big)
 \end{equation*}
@@ -832,7 +832,7 @@ distributed pairs of random variables (see~\cref{fig:ols_quantiles}).
 \begin{figure}[hpt]
     \begin{center}
         \includegraphics[scale=0.35]{figures/ols/quantiles.pdf}
-        \caption{Empirical frequency versus predicted quantile for the linear regression
+        \caption{Cumulative probability versus quantile level for the linear regression
         model on the validation data (orange curve). The green curve indicates the theoretical ideal
         for a quantile-calibrated model.}
         \label{fig:ols_quantiles}
@@ -846,13 +846,13 @@ on the validation data set (see~\cref{remark:skceb_quadratic}). Kernel $k$ is ch
 as a tensor product kernel of two Gaussian kernels
 \begin{equation*}
     \begin{split}
-        k\big((p, y), (p', y')\big) &= \exp{\big(-W_2(p, p')\big)} \exp{\big(-(y - y')^2 \big)} \\
-        &= \exp{\big(-\sqrt{(m_p - m_{p'})^2 - (\sigma_p - \sigma_{p'})^2}\big)} \exp{\big(- (y - y')^2\big)},
+        k\big((p, y), (p', y')\big) &= \exp{\big(-W_2(p, p')\big)} \exp{\big(-(y - y')^2/2 \big)} \\
+        &= \exp{\bigg(-\sqrt{(m_p - m_{p'})^2 - (\sigma_p - \sigma_{p'})^2}\bigg)} \exp{\big(- (y - y')^2/2\big)},
     \end{split}
 \end{equation*}
 where $W_2$ is the 2-Wasserstein distance and $m_p, m_{p'}$ and $\sigma_p, \sigma_{p'}$ denote
 the mean and the standard deviation of the normal distributions $p$ and $p'$ (see~\cref{app:normal}).
-We obtain $p < 0.025$ in our experiment, and hence the calibration test rejects $H_0$ at the
+We obtain $p < 0.05$ in our experiment, and hence the calibration test rejects $H_0$ at the
 significance level $\alpha = 0.05$.
 
 \subsection{Empirical properties and computational efficiency}
@@ -881,62 +881,62 @@ $\widehat{\mathrm{SKCE}}_k$ and the unbiased estimator $\widehat{\mathrm{SKCE}}_
 blocks of size $B \in \{2, \sqrt{n}, n\}$. We use a tensor product kernel
 \begin{equation*}
 \begin{split}
-    k\big((p, y), (p', y')\big) &= \exp{\big(- W_2(p, p')\big)} \exp{\big(-(y - y')^2\big)} \\
-    &= \exp{\bigg(-\sqrt{(m_p - m_{p'})^2 - (\sigma_p - \sigma_{p'})^2}\bigg)} \exp{\big( - (y - y')^2\big)},
+    k\big((p, y), (p', y')\big) &= \exp{\big(- W_2(p, p')\big)} \exp{\big(-(y - y')^2/2\big)} \\
+    &= \exp{\bigg(-\sqrt{(m_p - m_{p'})^2 - (\sigma_p - \sigma_{p'})^2}\bigg)} \exp{\big( - (y - y')^2/2\big)},
 \end{split}
 \end{equation*}
 where $W_2$ is the 2-Wasserstein distance and $m_p, m_{p'}$ and $\sigma_p, \sigma_{p'}$
 denote the mean and the standard deviation of the normal distributions $p$ and $p'$.
 
-\Cref{fig:synthetic_error_calibrated_1,fig:synthetic_error_calibrated_10,fig:synthetic_error_uncalibrated_1,fig:synthetic_error_uncalibrated_10} visualize the mean absolute error and the variance
+\Cref{fig:synthetic_estimators_calibrated_1,fig:synthetic_estimators_calibrated_10,fig:synthetic_estimators_uncalibrated_1,fig:synthetic_estimators_uncalibrated_10} visualize the mean absolute error and the variance
 of the resulting estimates for the calibrated and the uncalibrated model with dimensions
 $d = 1$ and $d = 10$ for $500$ independently drawn data sets of $n \in \{4, 16, 64, 256, 1024\}$
 samples of $(P_X, Y)$. Computation time indicates the minimum time in the $500$ evaluations
 on a computer with a 3.6\,GHz processor. The ground truth values of the uncalibrated models were
 estimated by averaging the estimates of $\widehat{\mathrm{SKCE}}_{k,1000}$
 for $1000$ independently drawn data sets of $1000$ samples of $(P_X, Y)$ (independent from
-the data sets used for the evaluation of the estimates). \Cref{fig:synthetic_error_calibrated_1,fig:synthetic_error_calibrated_10} illustrate that
+the data sets used for the evaluation of the estimates). \Cref{fig:synthetic_estimators_calibrated_1,fig:synthetic_estimators_calibrated_10} illustrate that
 the computational efficiency of $\widehat{\mathrm{SKCE}}_{k,2}$ in comparison with the
 other estimators comes at the cost of increased error and variance for the calibrated models
 for fixed numbers of samples.
 
 \begin{figure}[hpt]
     \begin{center}
-        \includegraphics[scale=0.35]{figures/synthetic/errors_model=calibratedmodel_d=1.pdf}
+        \includegraphics[scale=0.35]{figures/synthetic/estimators_calibrated_model_dim=1.pdf}
         \caption{Mean absolute error and variance of 500 calibration error estimates for
         data sets of $n \in \{4, 16, 64, 256, 1024\}$ samples from the calibrated model
         of dimension $d = 1$.}
-        \label{fig:synthetic_error_calibrated_1}
+        \label{fig:synthetic_estimators_calibrated_1}
     \end{center}
 \end{figure}
 
 \begin{figure}[hpt]
     \begin{center}
-        \includegraphics[scale=0.35]{figures/synthetic/errors_model=calibratedmodel_d=10.pdf}
+        \includegraphics[scale=0.35]{figures/synthetic/estimators_calibrated_model_dim=10.pdf}
         \caption{Mean absolute error and variance of 500 calibration error estimates for
         data sets of $n \in \{4, 16, 64, 256, 1024\}$ samples from the calibrated model
         of dimension $d = 10$.}
-        \label{fig:synthetic_error_calibrated_10}
+        \label{fig:synthetic_estimators_calibrated_10}
     \end{center}
 \end{figure}
 
 \begin{figure}[hpt]
     \begin{center}
-        \includegraphics[scale=0.35]{figures/synthetic/errors_model=uncalibratedmodel_d=1.pdf}
+        \includegraphics[scale=0.35]{figures/synthetic/estimators_uncalibrated_model_dim=1.pdf}
         \caption{Mean absolute error and variance of 500 calibration error estimates for
         data sets of $n \in \{4, 16, 64, 256, 1024\}$ samples from the uncalibrated model
         of dimension $d = 1$.}
-        \label{fig:synthetic_error_uncalibrated_1}
+        \label{fig:synthetic_estimators_uncalibrated_1}
     \end{center}
 \end{figure}
 
 \begin{figure}[hpt]
     \begin{center}
-        \includegraphics[scale=0.35]{figures/synthetic/errors_model=uncalibratedmodel_d=10.pdf}
+        \includegraphics[scale=0.35]{figures/synthetic/estimators_uncalibrated_model_dim=10.pdf}
         \caption{Mean absolute error and variance of 500 calibration error estimates for
         data sets of $n \in \{4, 16, 64, 256, 1024\}$ samples from the uncalibrated model
         of dimension $d = 10$.}
-        \label{fig:synthetic_error_uncalibrated_10}
+        \label{fig:synthetic_estimators_uncalibrated_10}
     \end{center}
 \end{figure}
 
@@ -972,7 +972,7 @@ still achieves good test power for reasonably large number of samples (> 30).
 
 \begin{figure}[hpt]
     \begin{center}
-        \includegraphics[scale=0.35]{figures/synthetic/tests_d=1.pdf}
+        \includegraphics[scale=0.35]{figures/synthetic/tests_dim=1.pdf}
         \caption{Empirical test errors for 500 data sets of $n \in \{4, 16, 64, 256, 1024\}$
         samples from models with targets of dimension $d = 1$. The dashed black line
         indicates the set signficance level $\alpha = 0.05$.}
@@ -982,7 +982,7 @@ still achieves good test power for reasonably large number of samples (> 30).
 
 \begin{figure}[hpt]
     \begin{center}
-        \includegraphics[scale=0.35]{figures/synthetic/tests_d=10.pdf}
+        \includegraphics[scale=0.35]{figures/synthetic/tests_dim=10.pdf}
         \caption{Empirical test errors for 500 data sets of $n \in \{4, 16, 64, 256, 1024\}$
         samples from models with targets of dimension $d = 10$. The dashed black line
         indicates the set signficance level $\alpha = 0.05$.}
@@ -1044,8 +1044,8 @@ quantile levels $\tau \in \{0.05, 0.1, \ldots, 0.95\}$. Estimates of the $\mathr
 (SKCE (unbiased)) and $\mathrm{SKCE}_{k}$ (SKCE (biased)) are evaluated for the tensor product kernel
 \begin{equation*}
     \begin{split}
-        k\big((p, y), (p', y')\big) &= \exp{\big(-W_2(p, p')\big)} \exp{\big(-(y - y')^2 \big)} \\
-        &= \exp{\big(-\sqrt{(m_p - m_{p'})^2 - (\sigma_p - \sigma_{p'})^2}\big)} \exp{\big(- (y - y')^2\big)},
+        k\big((p, y), (p', y')\big) &= \exp{\big(-W_2(p, p')\big)} \exp{\big(-(y - y')^2/2 \big)} \\
+        &= \exp{\bigg(-\sqrt{(m_p - m_{p'})^2 - (\sigma_p - \sigma_{p'})^2}\bigg)} \exp{\big(- (y - y')^2/2\big)},
     \end{split}
 \end{equation*}
 where $W_2$ is the 2-Wasserstein distance and $m_p, m_{p'}$ and $\sigma_p, \sigma_{p'}$ denote
@@ -1066,15 +1066,15 @@ is guaranteed theoretically by the generalized mean inequality.
 
 \begin{figure}[htp]
     \begin{center}
-        \includegraphics[scale=0.07]{figures/friedman/statsplot.png}
+        \includegraphics[scale=0.35]{figures/friedman/statsplot.pdf}
         \caption{Estimates of different accuracy and calibration measures of ten
         Gaussian predictive models for the Friedman~1 regression problem versus
         the number of training iterations.
-        Evaluations on the training data set (100 samples) and the test data set
-        (50 samples) are displayed in green and orange, respectively. The solid line
-        and its surrounding band represent the mean and the range of the 10\% to 90\%
-        quantile of the evaluations of the ten models. The dashed line visualizes the
-        evaluations of the ensemble models.}
+        Evaluations on the training data set (100 samples) are displayed in green
+        and orange, and on the test data set (50 samples) in blue and purple.
+        The green and blue line and their surrounding bands represent
+        the mean and the range of the evaluations of the ten models. The orange and
+        purple lines visualize the evaluations of the ensemble models.}
         \label{fig:friedman1}
     \end{center}
 \end{figure}
