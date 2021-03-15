@@ -143,7 +143,11 @@ tests for general probabilistic predictive models. It applies to any such model,
 classification and regression models of arbitrary dimension. Furthermore,
 the framework generalizes existing measures and provides a more intuitive
 reformulation of a recently proposed framework for calibration in
-multi-class classification.
+multi-class classification. In particular, we reformulate and generalize the
+kernel calibration error, its estimators, and hypothesis tests using scalar-valued
+kernels, and evaluate the calibration of real-valued regression
+problems.\footnote{The source code of the experiments is available at
+  \url{https://github.com/devmotion/Calibration_ICLR2021}.}
 \end{abstract}
 
 \section{Introduction}
@@ -307,8 +311,7 @@ estimators of the KCE with subquadratic sample complexity and their asymptotic p
 in tests for calibrated models, which improve on existing estimators and tests in the
 two-sample test literature by exploiting the special structure of the calibration
 framework. Using the proposed framework, we numerically evaluate the calibration of neural
-network models and ensembles of such models.\footnote{The code of the experiments
-is available at \url{https://github.com/anonymous/forpeerreview}.}
+network models and ensembles of such models.
 
 \section{Calibration error: A general framework}
 
