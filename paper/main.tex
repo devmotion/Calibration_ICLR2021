@@ -555,7 +555,7 @@ they do not include terms of the form $h\big((P_{X_i}, Y_i), (P_{X_i}, Y_i)\big)
 The block estimator of $\mathrm{SKCE}_k$ with
 block size $B \in \{2,\ldots,n\}$, given by
 \begin{equation*}
-    \widehat{\mathrm{SKCE}}_{k,B} \coloneqq \bigg\lfloor \frac{n}{B} \bigg\rfloor^{-1} \sum_{b=1}^{\lfloor n / B \rfloor} \binom{B}{2}^{-1} \sum_{(b - 1) B + 1 \leq i < j \leq bB} h\big((P_{X_{i}}, Y_i), (P_{X_j}, Y_j)\big),
+    \widehat{\mathrm{SKCE}}_{k,B} \coloneqq \bigg\lfloor \frac{n}{B} \bigg\rfloor^{-1} \sum_{b=1}^{\lfloor n / B \rfloor} \binom{B}{2}^{-1} \sum_{(b - 1) B < i < j \leq bB} h\big((P_{X_{i}}, Y_i), (P_{X_j}, Y_j)\big),
 \end{equation*}
 is an unbiased estimator of $\mathrm{SKCE}_k$.
 \end{restatable}
@@ -1357,7 +1357,7 @@ $\widehat{\mathrm{SKCE}}_{k,B} < \infty$ almost surely.
 
 For $b \in \{1, \ldots, \lfloor n / B \rfloor\}$, let
 \begin{equation}\label{eq:etab}
-    \widehat{\eta}_b \coloneqq \binom{B}{2}^{-1} \sum_{(b - 1) B + 1 \leq i < j \leq bB} h\big((P_{X_{i}}, Y_i), (P_{X_j}, Y_j)\big)
+    \widehat{\eta}_b \coloneqq \binom{B}{2}^{-1} \sum_{(b - 1) B < i < j \leq bB} h\big((P_{X_{i}}, Y_i), (P_{X_j}, Y_j)\big)
 \end{equation}
 be the estimator of the $b$th block. From \cref{lemma:hbound} it follows
 that $\widehat{\eta}_b < \infty$ almost surely for all $b$.
