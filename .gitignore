@@ -9,7 +9,6 @@
 # Emacs
 auto/
 
-/paper/main.pdf
 # Webpage
 /site/build/
 /site/src/generated/
