@@ -1,7 +1,14 @@
+# LaTeX files
 *.aux
 *.bbl
 *.blg
 *.log
 *.out
+*.synctex.gz
 
-/paper/main.pdf
+# Emacs
+auto/
+
+# Webpage
+/site/build/
+/site/src/generated/

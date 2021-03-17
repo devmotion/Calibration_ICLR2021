@@ -2,6 +2,7 @@
 % arara: bibtex
 % arara: pdflatex: { shell: yes }
 % arara: pdflatex: { shell: yes }
+% arara: pdflatex: { shell: yes, synctex: yes }
 \documentclass{article}
 
 \usepackage{mathtools,latexsym}
@@ -119,7 +120,7 @@
 % puts 3 of 4 authors names on the first line, and the last on the second
 % line, try using \AND instead of \And before the third author name.
 
-% \iclrfinalcopy % Uncomment for camera-ready version, but NOT for submission.
+\iclrfinalcopy % Uncomment for camera-ready version, but NOT for submission.
 
 \begin{document}
 
@@ -142,7 +143,11 @@ tests for general probabilistic predictive models. It applies to any such model,
 classification and regression models of arbitrary dimension. Furthermore,
 the framework generalizes existing measures and provides a more intuitive
 reformulation of a recently proposed framework for calibration in
-multi-class classification.
+multi-class classification. In particular, we reformulate and generalize the
+kernel calibration error, its estimators, and hypothesis tests using scalar-valued
+kernels, and evaluate the calibration of real-valued regression
+problems.\footnote{The source code of the experiments is available at
+\url{https://github.com/devmotion/Calibration_ICLR2021}.}
 \end{abstract}
 
 \section{Introduction}
@@ -244,9 +249,8 @@ appear close to being calibrated albeit being uncalibrated according to \cref{de
     \cref{def:calibration}. Using the framework in this
     paper, on the same validation data a statistical test allows us to reject
     the null hypothesis that model $P$ is calibrated at a significance level of
-    $\alpha = 0.05$ ($p < 0.025$). See~\cref{app:ols} for details.}%
+    $\alpha = 0.05$ ($p < 0.05$). See~\cref{app:ols} for details.}%
     \label{fig:ols_motivation}
-    %\vspace{-0.5\baselineskip}
 \end{figure}
 
 \Cref{fig:ols_motivation} also raises the question of how to assess
@@ -295,7 +299,7 @@ that are restricted to simple output distributions, such as classification
 and \emph{scalar-valued} regression problems. 
 A \emph{key contribution} of this paper is a new framework that
 is applicable to \emph{multivariate} regression, as well as situations when the output is of a
-different (e.g. discrete ordinal) or more complex (e.g, graph-structured) type, with clear practical implications.
+different (e.g., discrete ordinal) or more complex (e.g., graph-structured) type, with clear practical implications.
 
 Within this framework a KCE for general target spaces is obtained. We want to highlight
 that for multi-class classification problems its formulation is more intuitive and
@@ -306,8 +310,7 @@ estimators of the KCE with subquadratic sample complexity and their asymptotic p
 in tests for calibrated models, which improve on existing estimators and tests in the
 two-sample test literature by exploiting the special structure of the calibration
 framework. Using the proposed framework, we numerically evaluate the calibration of neural
-network models and ensembles of such models.\footnote{The code of the experiments
-is available at \url{https://github.com/anonymous/forpeerreview}.}
+network models and ensembles of such models.
 
 \section{Calibration error: A general framework}
 
@@ -473,8 +476,8 @@ $k_{\mathcal{Y}} \colon \mathcal{Y} \times \mathcal{Y} \to \mathbb{R}$ are
 kernels on the spaces of predicted distributions and targets, respectively.\footnote{As
 mentioned above, our framework rephrases and generalizes the construction used
 by \citet{Widmann2019}. The matrix-valued kernels that they employ can be
-recovered by setting $k_{\mathcal{P}}$ to a Gaussian kernel on the probability simplex and
-$k_{\mathcal{Y}}(y_1, y_2) = \delta_{y_1,y_2}$.}
+recovered by setting $k_{\mathcal{P}}$ to a Laplacian kernel on the probability simplex and
+$k_{\mathcal{Y}}(y, y') = \delta_{y,y'}$.}
 
 By definition, so-called characteristic kernels guarantee that
 $\mathrm{KCE} = 0$ if and only if the distributions of $(P_X,Y)$
@@ -522,7 +525,7 @@ In~\cref{app:mixture} we show that for many mixture models, and hence model ense
 Hilbertian metrics between model components
 can be lifted to Hilbertian metrics between mixture models. This construction
 is a generalization of the Wasserstein-like distance for Gaussian mixture models proposed
-by \citet{Delon2019,Chen2019}.
+by \citet{Delon2019,Chen2019,Chen2020}.
 
 \subsection{Estimation}
 
@@ -552,7 +555,7 @@ they do not include terms of the form $h\big((P_{X_i}, Y_i), (P_{X_i}, Y_i)\big)
 The block estimator of $\mathrm{SKCE}_k$ with
 block size $B \in \{2,\ldots,n\}$, given by
 \begin{equation*}
-    \widehat{\mathrm{SKCE}}_{k,B} \coloneqq \bigg\lfloor \frac{n}{B} \bigg\rfloor^{-1} \sum_{b=1}^{\lfloor n / B \rfloor} \binom{B}{2}^{-1} \sum_{(b - 1) B + 1 \leq i < j \leq bB} h\big((P_{X_{i}}, Y_i), (P_{X_j}, Y_j)\big),
+    \widehat{\mathrm{SKCE}}_{k,B} \coloneqq \bigg\lfloor \frac{n}{B} \bigg\rfloor^{-1} \sum_{b=1}^{\lfloor n / B \rfloor} \binom{B}{2}^{-1} \sum_{(b - 1) B < i < j \leq bB} h\big((P_{X_{i}}, Y_i), (P_{X_j}, Y_j)\big),
 \end{equation*}
 is an unbiased estimator of $\mathrm{SKCE}_k$.
 \end{restatable}
@@ -589,8 +592,6 @@ $p$-values obtained by so-called consistency
 resampling~\citep{Broecker2007,Vaicenavicius2019} underestimated
 the $p$-value and hence rejected the null hypothesis too
 often~\citep{Widmann2019}.
-
-
 
 For fixed block sizes
 $    \sqrt{\lfloor n / B \rfloor} \big(\widehat{\mathrm{SKCE}}_{k,B} - \mathrm{SKCE}_k\big) \xrightarrow{d} \mathcal{N}\big(0, \sigma^2_B\big)$ as $n \to \infty$,
@@ -631,7 +632,7 @@ concurrent work by \citet{Park2020} is a random variable derived from much
 weaker measure-theoretical assumptions.
 The MCMD provides a local discrepancy conditional on random predictions
 whereas KCE is a global real-valued summary of these local
-discrepancies.\footnote{In our calibration setting, MMCD is
+discrepancies.\footnote{In our calibration setting, the $\mathrm{MCMD}$ is
 almost surely equal to
 $
     \sup_{f \in \mathcal{F}_\mathcal{Y}}
@@ -671,34 +672,17 @@ empirically that the percentage of incorrect rejections of $H_0$ converges to th
 significance level as the number of samples increases.
 Moreover, the results highlight the computational burden of the calibration test
 that estimates quantiles of the intractable asymptotic distribution of
-$\widehat{\mathrm{SKCE}}_{k,n}$ by bootstrapping. As expected, due to the larger
+$n\widehat{\mathrm{SKCE}}_{k,n}$ by bootstrapping. As expected, due to the larger
 variance of $\widehat{\mathrm{SKCE}}_{k,2}$ the test with fixed block size $B = 2$
 shows a decreased test power although being computationally much more efficient.
 
 \begin{figure}[!hbtp]
     \centering
-    \includegraphics[scale=0.35]{figures/synthetic/tests_d=10.pdf}
+    \includegraphics[scale=0.35]{figures/synthetic/tests_dim=10.pdf}
     \caption{Empirical test errors for 500 data sets of $n \in \{4, 16, 64, 256, 1024\}$
     samples from models with targets of dimension $d = 10$. The dashed black line
     indicates the set signficance level $\alpha = 0.05$.}%
     \label{fig:synthetic_tests_10_main}
-    \vspace{-\baselineskip}
-\end{figure}
-
-\begin{figure}[!hbtp]
-    \centering
-    \includegraphics[scale=0.07]{figures/friedman/statsplot_zoom.png}
-    \caption{Mean squared error (MSE), average negative log-likelihood (NLL),
-    $\widehat{\mathrm{SKCE}}_k$ (SKCE), and $p$-value approximation ($p$-value) of
-    ten Gaussian predictive models for the Friedman~1 regression problem versus
-    the number of training iterations.
-    Evaluations on the training data set (100 samples) and the test data set
-    (50 samples) are displayed in green and orange, respectively. The solid line
-    and its surrounding band represent the mean and the range of the 10\% to 90\%
-    quantile of the evaluations of the ten models, respectively. The dashed line visualizes the
-    evaluations of the ensemble models.}%
-    \label{fig:friedman1_zoom}
-    \vspace{-\baselineskip}
 \end{figure}
 
 \subsection{Friedman 1 regression problem}
@@ -706,12 +690,12 @@ shows a decreased test power although being computationally much more efficient.
 The Friedman~1 regression problem~\citep{Friedman1979,Friedman1983,Friedman1991}
 is a classic non-linear regression problem with ten-dimensional features and
 real-valued targets with Gaussian noise. We train a Gaussian predictive model
-whose mean is modelled by a shallow neural network and %whose variance is a
+whose mean is modelled by a shallow neural network and
 a single scalar
 variance
 parameter (consistent with the data-generating model) ten times
 with different initial parameters. \Cref{fig:friedman1_zoom} shows estimates of the
-mean-squared error (MSE),
+mean squared error (MSE),
 the average negative log-likelihood (NLL), $\mathrm{SKCE}_k$, and a $p$-value
 approximation for these models and their ensemble on the training and a separate
 test data set.
@@ -721,6 +705,21 @@ $\mathrm{SKCE}_k$ and the $p$-values allow to focus on calibration specifically,
 whereas MSE indicates accuracy only and NLL, as any proper scoring rule~\citep{Broecker2009}, provides a summary of calibration and accuracy. The estimation
 of $\mathrm{SKCE}_k$ in addition to NLL could serve as another source of information
 for early stopping and model selection.
+
+\begin{figure}[!hbtp]
+    \centering
+    \includegraphics[scale=0.35]{figures/friedman/statsplot_zoom.pdf}
+    \caption{Mean squared error (MSE), average negative log-likelihood (NLL),
+    $\widehat{\mathrm{SKCE}}_k$ (SKCE (biased)), and $p$-value approximation ($p$-value) of
+    ten Gaussian predictive models for the Friedman~1 regression problem versus
+    the number of training iterations.
+    Evaluations on the training data set (100 samples) are displayed in green
+    and orange, and on the test data set (50 samples) in blue and purple.
+    The green and blue line and their surrounding bands represent
+    the mean and the range of the evaluations of the ten models. The orange and
+    purple lines visualize the evaluations of their ensemble.}%
+    \label{fig:friedman1_zoom}
+\end{figure}
 
 \section{Conclusion}
 
@@ -759,10 +758,18 @@ trading off calibration for accuracy when using log-likelihood for
 re-calibration. Thus hypothetically flexible calibration methods might
 benefit from using the presented calibration error estimators.
 
-%\subsubsection*{Acknowledgments}
-%
-%Use unnumbered third level headings for the acknowledgments. All
-%acknowledgments, including those to funding agencies, go at the end of the paper.
+\subsubsection*{Acknowledgments}
+
+We thank the reviewers for all the constructive feedback on our paper.
+This research is financially supported by the Swedish Research Council via the
+projects \emph{Learning of Large-Scale Probabilistic Dynamical Models} (contract
+number: 2016-04278), \emph{Counterfactual Prediction Methods for Heterogeneous
+Populations} (contract number: 2018-05040), and
+\emph{Handling Uncertainty in Machine Learning Systems} (contract number: 2020-04122),
+by the Swedish Foundation for Strategic Research via the project
+\emph{Probabilistic Modeling and Inference for Machine Learning} (contract number: ICA16-0015),
+by the Wallenberg AI, Autonomous Systems and Software Program (WASP) funded by the Knut and Alice
+Wallenberg Foundation, and by ELLIIT.
 
 \bibliography{references}
 \bibliographystyle{iclr2021_conference}
@@ -791,9 +798,16 @@ benefit from using the presented calibration error estimators.
 \section{Experiments}
 \label{app:experiments}
 
+The source code of the experiments and instructions for reproducing the
+results are available at
+\url{https://github.com/devmotion/Calibration_ICLR2021}. Additional
+material such as automatically generated HTML output and Jupyter
+notebooks is available at
+\url{https://devmotion.github.io/Calibration_ICLR2021/}.
+
 \subsection{Ordinary least squares}\label{app:ols}
 
-We consider a regression with scalar feature $X$ and scalar target $Y$ with input-dependent Gaussian noise
+We consider a regression problem with scalar feature $X$ and scalar target $Y$ with input-dependent Gaussian noise
 that is inspired by a problem by \citet{Gustafsson2019}. Feature $X$ is
 distributed uniformly at random in $[-1, 1]$, and target $Y$ is distributed according to
 \begin{equation*}
@@ -813,12 +827,12 @@ pairs of feature $X$ and target $Y$ (see~\cref{fig:ols_heatmap}).
 \end{figure}
 
 A validation data set of $n = 50$ i.i.d.\ pairs of $X$ and $Y$ is used to
-evaluate the empirical frequency
+evaluate the empirical cumulative probability
 \begin{equation*}
     n^{-1} \sum_{i=1}^n \mathbbm{1}_{[0,\tau]}\big(P(Y \leq Y_i | X = X_i)\big)
 \end{equation*}
 of model $P$ for quantile levels $\tau \in [0, 1]$. Model $P$ would be quantile
-calibrated~\citep{Song2019}
+calibrated~\citep{Song2019} if
 \begin{equation*}
     \tau = \Prob_{X',Y'}\big(P(Y \leq Y' | X = X') \leq \tau \big)
 \end{equation*}
@@ -828,7 +842,7 @@ distributed pairs of random variables (see~\cref{fig:ols_quantiles}).
 \begin{figure}[hpt]
     \begin{center}
         \includegraphics[scale=0.35]{figures/ols/quantiles.pdf}
-        \caption{Empirical frequency versus predicted quantile for the linear regression
+        \caption{Cumulative probability versus quantile level for the linear regression
         model on the validation data (orange curve). The green curve indicates the theoretical ideal
         for a quantile-calibrated model.}
         \label{fig:ols_quantiles}
@@ -839,16 +853,16 @@ Additionally, we compute a $p$-value estimate of the null hypothesis $H_0$ that 
 is calibrated using an estimation of the quantile of the asymptotic distribution
 of $n \widehat{\mathrm{SKCE}}_{k,n}$ with 100000 bootstrap samples
 on the validation data set (see~\cref{remark:skceb_quadratic}). Kernel $k$ is chosen
-as a tensor product kernel of two Gaussian kernels
+as the tensor product kernel
 \begin{equation*}
     \begin{split}
-        k\big((p, y), (p', y')\big) &= \exp{\big(-W_2(p, p')\big)} \exp{\big(-(y - y')^2 \big)} \\
-        &= \exp{\big(-\sqrt{(m_p - m_{p'})^2 - (\sigma_p - \sigma_{p'})^2}\big)} \exp{\big(- (y - y')^2\big)},
+        k\big((p, y), (p', y')\big) &= \exp{\big(-W_2(p, p')\big)} \exp{\big(-(y - y')^2/2 \big)} \\
+        &= \exp{\bigg(-\sqrt{(m_p - m_{p'})^2 + (\sigma_p - \sigma_{p'})^2}\bigg)} \exp{\big(- (y - y')^2/2\big)},
     \end{split}
 \end{equation*}
 where $W_2$ is the 2-Wasserstein distance and $m_p, m_{p'}$ and $\sigma_p, \sigma_{p'}$ denote
 the mean and the standard deviation of the normal distributions $p$ and $p'$ (see~\cref{app:normal}).
-We obtain $p < 0.025$ in our experiment, and hence the calibration test rejects $H_0$ at the
+We obtain $p < 0.05$ in our experiment, and hence the calibration test rejects $H_0$ at the
 significance level $\alpha = 0.05$.
 
 \subsection{Empirical properties and computational efficiency}
@@ -869,79 +883,80 @@ distribution of $Y$ given $P_X$ as
 
 In the second setup we simulate an uncalibrated model of the form
 \begin{equation*}
-    Y \,|\, P_X = \mathcal{N}(\mu, \Sigma) \sim \mathcal{N}([0.1, \mu_2, \ldots, \mu_d], \Sigma).
+    Y \,|\, P_X = \mathcal{N}(\mu, \Sigma) \sim \mathcal{N}([0.1, \mu_2, \ldots, \mu_d]^{\mathsf{T}}, \Sigma).
 \end{equation*}
 
 We perform an evaluation of the convergence and computation time of the biased estimator
 $\widehat{\mathrm{SKCE}}_k$ and the unbiased estimator $\widehat{\mathrm{SKCE}}_{k,B}$ with
-blocks of size $B \in \{2, \sqrt{n}, n\}$. We use a tensor product kernel
+blocks of size $B \in \{2, \sqrt{n}, n\}$. We use the tensor product kernel
 \begin{equation*}
 \begin{split}
-    k\big((p, y), (p', y')\big) &= \exp{\big(- W_2(p, p')\big)} \exp{\big(-(y - y')^2\big)} \\
-    &= \exp{\bigg(-\sqrt{(m_p - m_{p'})^2 - (\sigma_p - \sigma_{p'})^2}\bigg)} \exp{\big( - (y - y')^2\big)},
+    k\big((p, y), (p', y')\big) &= \exp{\big(- W_2(p, p')\big)} \exp{\big(-(y - y')^2/2\big)} \\
+    &= \exp{\bigg(-\sqrt{(m_p - m_{p'})^2 + (\sigma_p - \sigma_{p'})^2}\bigg)} \exp{\big( - (y - y')^2/2\big)},
 \end{split}
 \end{equation*}
 where $W_2$ is the 2-Wasserstein distance and $m_p, m_{p'}$ and $\sigma_p, \sigma_{p'}$
 denote the mean and the standard deviation of the normal distributions $p$ and $p'$.
 
-\Cref{fig:synthetic_error_calibrated_1,fig:synthetic_error_calibrated_10,fig:synthetic_error_uncalibrated_1,fig:synthetic_error_uncalibrated_10} visualize the mean absolute error and the variance
+\Cref{fig:synthetic_estimators_calibrated_1,fig:synthetic_estimators_calibrated_10,fig:synthetic_estimators_uncalibrated_1,fig:synthetic_estimators_uncalibrated_10} visualize the mean absolute error and the variance
 of the resulting estimates for the calibrated and the uncalibrated model with dimensions
 $d = 1$ and $d = 10$ for $500$ independently drawn data sets of $n \in \{4, 16, 64, 256, 1024\}$
 samples of $(P_X, Y)$. Computation time indicates the minimum time in the $500$ evaluations
 on a computer with a 3.6\,GHz processor. The ground truth values of the uncalibrated models were
 estimated by averaging the estimates of $\widehat{\mathrm{SKCE}}_{k,1000}$
 for $1000$ independently drawn data sets of $1000$ samples of $(P_X, Y)$ (independent from
-the data sets used for the evaluation of the estimates). \Cref{fig:synthetic_error_calibrated_1,fig:synthetic_error_calibrated_10} illustrate that
+the data sets used for the evaluation of the estimates). \Cref{fig:synthetic_estimators_calibrated_1,fig:synthetic_estimators_calibrated_10} illustrate that
 the computational efficiency of $\widehat{\mathrm{SKCE}}_{k,2}$ in comparison with the
 other estimators comes at the cost of increased error and variance for the calibrated models
 for fixed numbers of samples.
 
 \begin{figure}[hpt]
     \begin{center}
-        \includegraphics[scale=0.35]{figures/synthetic/errors_model=calibratedmodel_d=1.pdf}
+        \includegraphics[scale=0.35]{figures/synthetic/estimators_calibrated_model_dim=1.pdf}
         \caption{Mean absolute error and variance of 500 calibration error estimates for
         data sets of $n \in \{4, 16, 64, 256, 1024\}$ samples from the calibrated model
         of dimension $d = 1$.}
-        \label{fig:synthetic_error_calibrated_1}
+        \label{fig:synthetic_estimators_calibrated_1}
     \end{center}
 \end{figure}
 
 \begin{figure}[hpt]
     \begin{center}
-        \includegraphics[scale=0.35]{figures/synthetic/errors_model=calibratedmodel_d=10.pdf}
+        \includegraphics[scale=0.35]{figures/synthetic/estimators_calibrated_model_dim=10.pdf}
         \caption{Mean absolute error and variance of 500 calibration error estimates for
         data sets of $n \in \{4, 16, 64, 256, 1024\}$ samples from the calibrated model
         of dimension $d = 10$.}
-        \label{fig:synthetic_error_calibrated_10}
+        \label{fig:synthetic_estimators_calibrated_10}
     \end{center}
 \end{figure}
 
 \begin{figure}[hpt]
     \begin{center}
-        \includegraphics[scale=0.35]{figures/synthetic/errors_model=uncalibratedmodel_d=1.pdf}
+        \includegraphics[scale=0.35]{figures/synthetic/estimators_uncalibrated_model_dim=1.pdf}
         \caption{Mean absolute error and variance of 500 calibration error estimates for
         data sets of $n \in \{4, 16, 64, 256, 1024\}$ samples from the uncalibrated model
         of dimension $d = 1$.}
-        \label{fig:synthetic_error_uncalibrated_1}
+        \label{fig:synthetic_estimators_uncalibrated_1}
     \end{center}
 \end{figure}
 
 \begin{figure}[hpt]
     \begin{center}
-        \includegraphics[scale=0.35]{figures/synthetic/errors_model=uncalibratedmodel_d=10.pdf}
+        \includegraphics[scale=0.35]{figures/synthetic/estimators_uncalibrated_model_dim=10.pdf}
         \caption{Mean absolute error and variance of 500 calibration error estimates for
         data sets of $n \in \{4, 16, 64, 256, 1024\}$ samples from the uncalibrated model
         of dimension $d = 10$.}
-        \label{fig:synthetic_error_uncalibrated_10}
+        \label{fig:synthetic_estimators_uncalibrated_10}
     \end{center}
 \end{figure}
 
 We compare calibration tests based on the (tractable) asymptotic distribution of
-$\widehat{\mathrm{SKCE}}_{k,B}$ with fixed block size $B \in \{2, \sqrt{n}$
+$\sqrt{\lfloor n / B \rfloor} \widehat{\mathrm{SKCE}}_{k,B}$ with fixed block
+size $B \in \{2, \sqrt{n}\}$
 (see~\cref{remark:skceb_fixed}), the (intractable) asymptotic distribution of
-$\widehat{\mathrm{SKCE}}_{k,n}$ which is approximated with 1000 bootstrap
+$n\widehat{\mathrm{SKCE}}_{k,n}$ which is approximated with 1000 bootstrap
 samples (see~\cref{remark:skceb_quadratic}), and a Hotelling's $T^2$-statistic for
-$\mathrm{UCME}_k$ with 10 test locations (see~\cref{app:ucme}). We compute
+$\mathrm{UCME}_{k,10}$ with 10 test locations (see~\cref{app:ucme}). We compute
 the empirical test errors (percentage of false rejections of the null hypothesis $H_0$
 that model $P$ is calibrated if $P$ is calibrated, and percentage of false non-rejections
 of $H_0$ if $P$ is not calibrated) at a fixed significance level $\alpha = 0.05$ and
@@ -957,9 +972,10 @@ $\mathcal{N}(\mathbf{0}, 0.1^2 \mathbf{I}_d)$.
 significance level asymptotically as the number of samples increases. The convergence of
 the $\mathrm{CME}$ test with 10 test locations is found to be much slower than the convergence
 of all other tests.
-The tests based on tractable asymptotic distribution of $\widehat{\mathrm{SKCE}}_{k,B}$ for
+The tests based on the tractable asymptotic distribution of
+$\sqrt{\lfloor n / B \rfloor} \widehat{\mathrm{SKCE}}_{k,B}$ for
 fixed block size $B$ are orders of magnitudes faster than the test based on the intractable
-asymptotic distribution of $\widehat{\mathrm{SKCE}}_{k,B}$, approximated with 1000 bootstrap
+asymptotic distribution of $n \widehat{\mathrm{SKCE}}_{k,n}$, approximated with 1000 bootstrap
 samples. We see that the efficiency gain comes at the cost of decreased test power for smaller
 number of samples, explained by the increasing variance of $\widehat{\mathrm{SKCE}}_{k,B}$ for
 decreasing block sizes $B$.
@@ -968,7 +984,7 @@ still achieves good test power for reasonably large number of samples (> 30).
 
 \begin{figure}[hpt]
     \begin{center}
-        \includegraphics[scale=0.35]{figures/synthetic/tests_d=1.pdf}
+        \includegraphics[scale=0.35]{figures/synthetic/tests_dim=1.pdf}
         \caption{Empirical test errors for 500 data sets of $n \in \{4, 16, 64, 256, 1024\}$
         samples from models with targets of dimension $d = 1$. The dashed black line
         indicates the set signficance level $\alpha = 0.05$.}
@@ -978,7 +994,7 @@ still achieves good test power for reasonably large number of samples (> 30).
 
 \begin{figure}[hpt]
     \begin{center}
-        \includegraphics[scale=0.35]{figures/synthetic/tests_d=10.pdf}
+        \includegraphics[scale=0.35]{figures/synthetic/tests_dim=10.pdf}
         \caption{Empirical test errors for 500 data sets of $n \in \{4, 16, 64, 256, 1024\}$
         samples from models with targets of dimension $d = 10$. The dashed black line
         indicates the set signficance level $\alpha = 0.05$.}
@@ -1036,12 +1052,13 @@ where $L_{\tau}(y, \tilde{y}) = (1 - \tau) (\tilde{y} - y)_{+} + \tau (y - \tild
 and $\mathrm{quantile}(P_x, \tau) = \inf_{y} \{P_x(Y \leq y) \geq \tau\}$ for
 quantile level $\tau \in [0, 1]$.
 In \cref{fig:friedman1} we plot the average pinball loss (pinball) for
-quantile levels $\tau \in \{0.05, 0.1, \ldots, 0.95\}$. Estimates of the $\mathrm{SKCE}_{k,n}$
-(SKCE (unbiased)) and $\mathrm{SKCE}_{k}$ (SKCE (biased)) are evaluated for the tensor product kernel
+quantile levels $\tau \in \{0.05, 0.1, \ldots, 0.95\}$. We evaluate
+$\widehat{\mathrm{SKCE}}_{k,n}$ (SKCE (unbiased)) and $\widehat{\mathrm{SKCE}}_{k}$
+(SKCE (biased)) for the tensor product kernel
 \begin{equation*}
     \begin{split}
-        k\big((p, y), (p', y')\big) &= \exp{\big(-W_2(p, p')\big)} \exp{\big(-(y - y')^2 \big)} \\
-        &= \exp{\big(-\sqrt{(m_p - m_{p'})^2 - (\sigma_p - \sigma_{p'})^2}\big)} \exp{\big(- (y - y')^2\big)},
+        k\big((p, y), (p', y')\big) &= \exp{\big(-W_2(p, p')\big)} \exp{\big(-(y - y')^2/2 \big)} \\
+        &= \exp{\bigg(-\sqrt{(m_p - m_{p'})^2 + (\sigma_p - \sigma_{p'})^2}\bigg)} \exp{\big(- (y - y')^2/2\big)},
     \end{split}
 \end{equation*}
 where $W_2$ is the 2-Wasserstein distance and $m_p, m_{p'}$ and $\sigma_p, \sigma_{p'}$ denote
@@ -1053,24 +1070,24 @@ and the average negative log-likelihood are denoted by MSE and NLL.
 All estimators indicate consistently that the trained models suffer from overfitting
 after around 1000 training iterations.
 
-Additionally, we form ensemble models of the ten individual models at every training
-iteration. The evaluations for the ensembles is visualized in \cref{fig:friedman1} as
+Additionally, we form ensembles of the ten individual models at every training
+iteration. The evaluations for the ensembles are visualized in \cref{fig:friedman1} as
 well. Apart from the unbiased estimates of $\mathrm{SKCE}_k$, the estimates of the
-ensemble models are consistently better than the average estimates of the ensemble
+ensembles are consistently better than the average estimates of the ensemble
 members. For the mean squared error and the negative log-likelihood this behaviour
 is guaranteed theoretically by the generalized mean inequality.
 
 \begin{figure}[htp]
     \begin{center}
-        \includegraphics[scale=0.07]{figures/friedman/statsplot.png}
+        \includegraphics[scale=0.35]{figures/friedman/statsplot.pdf}
         \caption{Estimates of different accuracy and calibration measures of ten
         Gaussian predictive models for the Friedman~1 regression problem versus
         the number of training iterations.
-        Evaluations on the training data set (100 samples) and the test data set
-        (50 samples) are displayed in green and orange, respectively. The solid line
-        and its surrounding band represent the mean and the range of the 10\% to 90\%
-        quantile of the evaluations of the ten models. The dashed line visualizes the
-        evaluations of the ensemble models.}
+        Evaluations on the training data set (100 samples) are displayed in green
+        and orange, and on the test data set (50 samples) in blue and purple.
+        The green and blue line and their surrounding bands represent
+        the mean and the range of the evaluations of the ten models. The orange and
+        purple lines visualize the evaluations of their ensemble.}
         \label{fig:friedman1}
     \end{center}
 \end{figure}
@@ -1105,11 +1122,11 @@ models.
 
 \begin{definition}\label{def:ece_mce}
 Let $d(\cdot, \cdot)$ be a distance measure of probability distributions
-of target $Y$. Then we call
+of target $Y$, and let $\mu$ be the law of $P_X$. Then we call
 \begin{equation*}
     \mathrm{ECE}_d = \Exp d\big(\Prob(Y|P_X), P_X\big) \qquad \text{and} \qquad
-    \mathrm{MCE}_d = \esssup d\big(\Prob(Y|P_X), P_X\big)
-\end{equation*} 
+    \mathrm{MCE}_d = \mu\text{-}\esssup d\big(\Prob(Y|P_X), P_X\big)
+\end{equation*}
 the expected calibration error~(ECE) and the maximum calibration error~(MCE)
 of model $P$ with respect to measure $d$, respectively.
 \end{definition}
@@ -1355,7 +1372,7 @@ $\widehat{\mathrm{SKCE}}_{k,B} < \infty$ almost surely.
 
 For $b \in \{1, \ldots, \lfloor n / B \rfloor\}$, let
 \begin{equation}\label{eq:etab}
-    \widehat{\eta}_b \coloneqq \binom{B}{2}^{-1} \sum_{(b - 1) B + 1 \leq i < j \leq bB} h\big((P_{X_{i}}, Y_i), (P_{X_j}, Y_j)\big)
+    \widehat{\eta}_b \coloneqq \binom{B}{2}^{-1} \sum_{(b - 1) B < i < j \leq bB} h\big((P_{X_{i}}, Y_i), (P_{X_j}, Y_j)\big)
 \end{equation}
 be the estimator of the $b$th block. From \cref{lemma:hbound} it follows
 that $\widehat{\eta}_b < \infty$ almost surely for all $b$.
@@ -1748,11 +1765,11 @@ one might want to use kernels of the form
 where $d_{\mathcal{P}} \colon \mathcal{P} \times \mathcal{P} \to \mathbb{R}$ is a
 metric on $\mathcal{P}$ and $\nu, \lambda > 0$ are kernel hyperparameters.
 Kernels of this form would be a generalization of the Gaussian and Laplacian
-kernel, and would clearly be non-zero almost surely
+kernel, and would clearly be non-zero almost surely.
 
 Unfortunately, this construction does not necessarily yield valid kernels.
 Most prominently, the Wasserstein distance does not lead to valid kernels $k_{\mathcal{P}}$ in general~\citep[Chapter~8.3]{Peyre2018}. However, if $d_{\mathcal{P}}(\cdot, \cdot)$
-is a Hilbertian metrics, i.e., a metric of the form
+is a Hilbertian metric, i.e., a metric of the form
 \begin{equation*}
     d_{\mathcal{P}}(p, p') = \big\|\phi(p) - \phi(p') \big\|_{H}
 \end{equation*}
@@ -1777,8 +1794,8 @@ $y \in \mathcal{Y} = \mathbb{R}^d$, and $\gamma > 0$. We obtain
     = {\big|\mathbf{I}_{d} + 2\gamma \Sigma_x \big|}^{-1/2} \exp{\Big(-\gamma {(\mu_x - y)}^{\mathsf{T}} {\big(\mathbf{I}_d + 2\gamma \Sigma_x
     \big)}^{-1} {(\mu_x - y)}\Big)}
 \end{multline*}
-from \citet[Theorem~3.2.a3]{mathai1992}. In particular, if
-$\Sigma_x = \mathrm{diag}{\Sigma_{x,1}, \ldots, \Sigma_{x,d})}$, then
+from \citet[Theorem~3.2.a.3]{mathai1992}. In particular, if
+$\Sigma_x = \mathrm{diag}{(\Sigma_{x,1}, \ldots, \Sigma_{x,d})}$, then
 \begin{multline*}
     \Exp_{Z_x \sim P_x} \exp{\Big(- \gamma {\|Z_x - y\|}^2_2\Big)} \\
     = \prod_{i=1}^{d} \bigg[{\big(1 + 2\gamma \Sigma_{x,i}\big)}^{-1/2} \exp{\Big(-\gamma {\big(1 + 2\gamma \Sigma_{x,i}\big)}^{-1} {\big(\mu_{x,i} - y_i\big)}^2 \Big)}\bigg].
@@ -1809,7 +1826,7 @@ targets $\mathcal{Y} = \mathbb{R}^d$
 allows us to compute $\Exp_{Z_x \sim P_x} k_{\mathcal{Y}}(Z_x, y)$ and
 $\Exp_{Z_x \sim P_x, Z_{x'} \sim P_{x'}} k_{\mathcal{Y}}(Z_x, Z_{x'})$
 analytically. Moreover, the Gaussian kernel is characteristic on
-$\mathbb{R}^d$~\citep{Fukumizu2008}. Hence as discussed above, by
+$\mathbb{R}^d$~\citep{Fukumizu2008}. Hence, as discussed above,
 by choosing a kernel $k_{\mathcal{P}}$ that is non-zero almost surely we can
 guarantee that $\mathrm{KCE}_k = 0$ if and only if model $P$ is
 calibrated.
@@ -1840,7 +1857,7 @@ Thus for all $\lambda, \gamma > 0$ and $\nu \in (0, 2]$
     k\big((p, y), (p', y')\big) = \exp{\big(-\lambda W^\nu_2(p, p')\big)} \exp{\Big(-\gamma {\|y-y'\|}^2_2\Big)}
 \end{equation*}
 is a valid kernel on the product space $\mathcal{P} \times \mathcal{Y}$
-of Normal distributions and $\mathbb{R}^d$ that allows to evaluate
+of normal distributions on $\mathbb{R}^d$ and $\mathbb{R}^d$ that allows to evaluate
 $h\big((p, y), (p', y')\big)$ analytically and guarantees that $\mathrm{KCE}_k = 0$
 if and only if model $P$ is calibrated.
 
@@ -1921,13 +1938,13 @@ kernel
 \end{equation*}
 with inverse length scale $\gamma > 0$ on the space of targets
 $\mathcal{Y} = \mathbb{R}$, we can compute
-$\Exp_{Z_x \sim P_x} k_{\mathcal{Y}}(Z_x, y)]$ and
+$\Exp_{Z_x \sim P_x} k_{\mathcal{Y}}(Z_x, y)$ and
 $\Exp_{Z_x \sim P_x, Z_{x'} \sim P_{x'}} k_{\mathcal{Y}}(Z_x, Z_{x'})$
 analytically. Additionally, the Laplacian kernel is characteristic
 on $\mathbb{R}$~\citep{Fukumizu2008}.
 
 Since the Laplace distribution is an elliptically contoured
-distribution, we know from \cite[Corollary~2]{Gelbrich1990} that
+distribution, we know from \citet[Corollary~2]{Gelbrich1990} that
 the 2-Wasserstein distance with respect to the Euclidean distance between
 $P_x = \mathcal{L}(\mu_x, \beta_x)$ and
 $P_{x'} = \mathcal{L}(\mu_{x'}, \beta_{x'})$ can be
@@ -1958,8 +1975,8 @@ Assume that the model predicts mixture distributions, possibly with different
 numbers of components. A special case of this setting are ensembles of models,
 in which each ensemble member predicts a component of the mixture model.
 
-Let $p, p' \in \mathcal{P}$ with $p = \sum_i \pi_i p'_i$ and
-$p' = \sum_j \pi'_j p_j$, where $\pi, \pi'$ are histograms and $p_i, p'_j$
+Let $p, p' \in \mathcal{P}$ with $p = \sum_i \pi_i p_i$ and
+$p' = \sum_j \pi'_j p'_j$, where $\pi, \pi'$ are histograms and $p_i, p'_j$
 are the mixture components. For kernel $k_{\mathcal{Y}}$ and $y \in \mathcal{Y}$ we obtain
 \begin{equation*}
     \Exp_{Z \sim p} k_{\mathcal{Y}}(Z, y) = \sum_i \pi_i \Exp_{W \sim p_i} k_{\mathcal{Y}}(Z, y)
@@ -1991,7 +2008,7 @@ by \citet{Delon2019,Chen2019,Chen2020}, we can consider metrics of the form
 \end{equation*}
 where
 \begin{equation*}
-    \Pi(\pi, \pi') = \bigg\{ w \in \mathbb{R}_{\geq 0}^{d \times d'} \colon \sum_i w_{i,j} = \pi'_j, \sum_j w_{i,j} = \pi_i\bigg\}
+    \Pi(\pi, \pi') = \bigg\{ w \colon \sum_i w_{i,j} = \pi'_j \land \sum_j w_{i,j} = \pi_i \land \forall i, j \colon w_{i,j} \geq 0\bigg\}
 \end{equation*}
 are the couplings of $\pi$ and $\pi'$, and $c(\cdot, \cdot)$ is a cost function
 between the components of the mixture model.
@@ -2016,7 +2033,7 @@ between the components of the mixture model.
     depend on the choice of histograms and mixture components. Thus $\mathrm{MW}_s$ is well-defined.
 
     Clearly, for all $p, p' \in \mathcal{P}$ we have $\mathrm{MW}_s(p, p') \geq 0$ and
-    $\mathrm{MW}_s(p, p') = d(p', p)$. Moreover,
+    $\mathrm{MW}_s(p, p') = \mathrm{MW}_s(p', p)$. Moreover,
     \begin{equation*}
         \begin{split}
             \mathrm{MW}_s^s(p, p) &= \min_{w \in \Pi(\pi, \pi)} \sum_{i,j} w_{i,j} d^s(p_i, p_j)
@@ -2148,13 +2165,13 @@ of Gaussian mixture models we obtain the $\mathrm{MW}_2$ metric proposed by
 the discrete formulation of $\mathrm{MW}_2$ obtained by our construction is
 equivalent to the definition
 \begin{equation}\label{eq:mw2}
-    \mathrm{MW}^2_2(p, p') \coloneqq \inf_{\gamma \in \Pi(p, p') \cap \mathrm{GMM}_{2d}(\infty)}
-    \int_{\mathbb{R}^d \times \mathbb{R}^d} d^2(y, y') \,\mathrm{d}\gamma(y,y') 
+    \mathrm{MW}^2_2(p, p') \coloneqq \inf_{\gamma \in \Pi(p, p') \cap \mathrm{GMM}_{2n}(\infty)}
+    \int_{\mathbb{R}^n \times \mathbb{R}^n} d^2(y, y') \,\mathrm{d}\gamma(y,y')
 \end{equation}
-for two Gaussian mixtures $p, p'$ on $\mathbb{R}^d$, where $\Pi(p, p')$ are the
-couplings of $p$ and $p'$ (not of the histograms!) and $\mathrm{GMM}_{2d}(\infty) = 
-\cup_{k \geq 0} \mathrm{GMM}_{2d}(k)$ is the set of all finite Gaussian mixture distributions
-on $\mathbb{R}^{2d}$. The construction of the discrete formulation as a solution to
+for two Gaussian mixtures $p, p'$ on $\mathbb{R}^n$, where $\Pi(p, p')$ are the
+couplings of $p$ and $p'$ (not of the histograms!) and $\mathrm{GMM}_{2n}(\infty) =
+\cup_{k \geq 0} \mathrm{GMM}_{2n}(k)$ is the set of all finite Gaussian mixture distributions
+on $\mathbb{R}^{2n}$. The construction of the discrete formulation as a solution to
 a constrained optimization problem similar to \cref{eq:mw2} can be generalized to
 mixtures of $t$-distributions. However, it is not possible for arbitrary mixture models
 such as mixtures of generalized Gaussian distributions, even though they are
@@ -2171,11 +2188,11 @@ As discussed above, if metric $d_{\mathcal{P}}$ is of the form in
 are valid kernels on $\mathcal{P}$ for all $\lambda > 0$ and $\nu \in (0, 2]$.
 
 Thus taken together, if $k_{\mathcal{Y}}$ is a characteristic kernel on the
-target space $\mathcal{Y}$ and $c(\cdot, \cdot)$ is a Hilbertian
-metric on the space of mixture components, then for all $\lambda > 0$
+target space $\mathcal{Y}$ and $d(\cdot, \cdot)$ is a Hilbertian
+metric on the space of mixture components, then for all $s \in [1, \infty)$, $\lambda > 0$,
 and $\nu \in (0, 2]$
 \begin{equation*}
-    k\big((p, y), (p', y')\big) = \exp{\big(-\lambda d^\nu_p(p, p')\big)} k_{\mathcal{Y}}(y, y')
+    k\big((p, y), (p', y')\big) = \exp{\big(-\lambda \mathrm{MW}_s^\nu(p, p')\big)} k_{\mathcal{Y}}(y, y')
 \end{equation*}
 is a valid kernel on the product space $\mathcal{P} \times \mathcal{Y}$
 of mixture distributions and targets that allows to evaluate $h\big((p, y), (p', y')\big)$
@@ -2197,7 +2214,7 @@ finite target spaces, i.e., if $|\mathcal{Y}| < \infty$.
 
 Without loss of generality, we assume that
 $\mathcal{Y} = \{1, \ldots, d\}$ for some
-$m \in \mathbb{N} \setminus \{1\}$. In our notation, the
+$d \in \mathbb{N} \setminus \{1\}$. In our notation, the
 previously defined calibration error, denoted by
 $\mathrm{CCE}$ (classification calibration error), with
 respect to a function space
@@ -2242,7 +2259,7 @@ $\mathcal{P} \times \mathcal{Y}$ instead of
 matrix-valued kernels on $\mathcal{P}$, as shown by the following
 comparison. By $e_i \in \mathbb{R}^d$ we denote the $i$th unit vector,
 and for a prediction $p \in \mathcal{P}$ its representation
-$v_p \in \mathbb{R}^m$ in the probability simplex is defined as
+$v_p \in \mathbb{R}^d$ in the probability simplex is defined as
 \begin{equation*}
     {(v_p)}_y = p\big(\{y\}\big)
 \end{equation*}
@@ -2266,7 +2283,7 @@ We obtain
         &+ \Exp_{P_X,Z_X,P_{X'},Z_{X'}} \big[K(P_X, P_{X'})\big]_{Z_X,Z_{X'}} \\
         ={}& \Exp_{P_X,Y,P_{X'},Y'} e_Y^\mathsf{T} K(P_X, P_{X'}) e_{Y'}
         - 2 \Exp_{P_X,Y,P_{X'},Y'} e_Y^\mathsf{T} K(P_X, P_{X'}) v_{P_{X'}} \\
-        & - \Exp_{P_X,Y,P_{X'},Y'} v_{P_X}^\mathsf{T} K(P_X, P_{X'}) v_{P_{X'}} \\
+        & + \Exp_{P_X,Y,P_{X'},Y'} v_{P_X}^\mathsf{T} K(P_X, P_{X'}) v_{P_{X'}} \\
         ={}& \Exp_{P_X,Y,P_{X'},Y'}{(e_Y - v_{P_X})}^\mathsf{T} K(P_X, P_{X'}) (e_{Y'} - v_{P_{X'}}),
     \end{split}
 \end{equation*}
@@ -2328,7 +2345,7 @@ measure.
 For some exponential families on $\mathbb{R}^d$ we obtain
 particularly simple transformations with respect to the
 Lebesgue measure $\lambda^d$ that keep the type of predicted
-distribution and its mean value invariant. Hence in contrast
+distribution and its mean invariant. Hence in contrast
 to other calibration methods, for these models temperature
 scaling yields analytically tractable distributions and does
 not negatively impact the accuracy of the models with
@@ -2342,7 +2359,7 @@ respect to $\lambda^d$ corresponds to multiplication of their
 scale parameter with $T^{1/\beta}$, where $\beta$ is the
 so-called kurtosis parameter~\citep{GomezSanchezManzano2008}.
 For normal distributions, this corresponds to multiplication
-of the covariance matrix with $T$. 
+of the covariance matrix with $T$.
 
 Similarly, temperature scaling of Beta and Dirichlet distributions
 with respect to reference measure
@@ -2393,14 +2410,14 @@ with $x_n \geq 0$ for all $n \in \mathbb{N}$ and $\|x\|_{1} = 1$.
     \begin{equation*}
         \mathrm{CE}^q_{\mathcal{F}} = \Exp_{P_X} \|\Prob(Y|P_X) - P_X\|_{q}^q.
     \end{equation*}
-    
-    If $\mathcal{F} \coloneqq \{f \colon \Delta^{\infty} \times \mathbb{N} \to \mathbb{R} \mid \Exp_{P_X} \|(f(P_X,n))_{n \in \mathbb{N}}\|_1 \leq 1\}$,
+
+    Let $\mu$ be the law of $P_X$. If $\mathcal{F} \coloneqq \{f \colon \Delta^{\infty} \times \mathbb{N} \to \mathbb{R} \mid \Exp_{P_X} \|(f(P_X,n))_{n \in \mathbb{N}}\|_1 \leq 1\}$,
     then
     \begin{equation*}
-        \mathrm{CE}_{\mathcal{F}} = P_X-\esssup_{\xi \in \Delta^{\infty}} \sup_{y \in \mathbb{N}} |\Prob(Y=y|P_X=\xi) - \xi(\{y\})|.
+        \mathrm{CE}_{\mathcal{F}} = \mu\text{-}\esssup_{\xi \in \Delta^{\infty}} \sup_{y \in \mathbb{N}} |\Prob(Y=y|P_X=\xi) - \xi(\{y\})|.
     \end{equation*}
     Moreover, if
-    $\mathcal{F} = \{f \colon \Delta^{\infty} \times \mathbb{N} \to \mathbb{R} \mid P_X-\esssup_{\xi \in \Delta^\infty} \sup_{y \in \mathbb{N}} |f(\xi, y)| \leq 1\}$,
+    $\mathcal{F} = \{f \colon \Delta^{\infty} \times \mathbb{N} \to \mathbb{R} \mid \mu\text{-}\esssup_{\xi \in \Delta^\infty} \sup_{y \in \mathbb{N}} |f(\xi, y)| \leq 1\}$,
     then
     \begin{equation*}
         \mathrm{CE}_{\mathcal{F}} = \Exp_{P_X} \|\Prob(Y|P_X) - P_X\|_1.
@@ -2410,12 +2427,12 @@ with $x_n \geq 0$ for all $n \in \mathbb{N}$ and $\|x\|_{1} = 1$.
 \begin{proof}
     Let $1 \leq p \leq \infty$, and let $\mu$ be the law of $P_X$ and $\nu$ be the counting measure on $\mathbb{N}$.
     Since both $\mu$ and $\nu$ are $\sigma$-finite measures, the product measure $\mu \otimes \nu$ is uniquely
-    determined an $\sigma$-finite as well. Using these definitions, we can reformulate $\mathcal{F}$ as
+    determined and $\sigma$-finite as well. Using these definitions, we can reformulate $\mathcal{F}$ as
     \begin{equation*}
         \mathcal{F} =  \{f \in L^p(\Delta^\infty \times \mathbb{N}; \mu \otimes \nu) \mid \|f\|_{p; \mu \otimes \nu} \leq 1\}.
     \end{equation*}
-    
-    Define the function $\delta \colon \Delta^{\infty} \times \mathbb{N} \to \mathbb{R}$ $P_X$-almost
+
+    Define the function $\delta \colon \Delta^{\infty} \times \mathbb{N} \to \mathbb{R}$ $(\mu \otimes \nu)$-almost
     surely by
     \begin{equation*}
         \delta(\xi, y) \coloneqq \Prob(Y = y \,|\, P_X = \xi) - \xi(\{y\}).
@@ -2424,15 +2441,14 @@ with $x_n \geq 0$ for all $n \in \mathbb{N}$ and $\|x\|_{1} = 1$.
     $\mu$-measurable. Moreover, $\delta \in L^q(\Delta^\infty \times \mathbb{N}; \mu \otimes \nu)$,
     which follows from $(\xi, y) \mapsto \Prob(Y = y \,|\, P_X = \xi)$
     and $(\xi, y) \mapsto \xi(\{y\})$ being functions in $L^q(\Delta^\infty \times \mathbb{N}; \mu \otimes \nu)$.
-    
-    
+
     Since $\mu \otimes \nu$ is a $\sigma$-finite measure, the extremal equality of Hölder's inequality implies that
     \begin{equation*}
         \begin{split}
-            \mathrm{CE}_{\mathcal{F}} &= \sup_{f \in \mathcal{F}} \Exp_{P_X,Y} f(P_X,Y) - \Exp_{P_X,Z} f(P_X, Z) \\
-            &= \sup_{f \in \mathcal{F}} \bigg| \Exp_{P_X,Y} f(P_X,Y) - \Exp_{P_X,Z} f(P_X, Z) \bigg| \\
+            \mathrm{CE}_{\mathcal{F}} &= \sup_{f \in \mathcal{F}} \Exp_{P_X,Y} f(P_X,Y) - \Exp_{P_X,Z_X} f(P_X, Z_X) \\
+            &= \sup_{f \in \mathcal{F}} \bigg| \Exp_{P_X,Y} f(P_X,Y) - \Exp_{P_X,Z_X} f(P_X, Z_X) \bigg| \\
             &= \sup_{f \in \mathcal{F}} \bigg| \int_{\Delta^{\infty} \times \mathbb{N}} f(\xi, y) \delta(\xi, y) \,(\mu \otimes \nu)(\mathrm{d}(\xi, y)) \bigg| \\
-            &= \|\delta\|_{q;\mu \otimes \nu}
+            &= \|\delta\|_{q;\mu \otimes \nu}.
         \end{split}
     \end{equation*}
     Note that the second equality follows from the symmetry of the function spaces $\mathcal{F}$: for every $f \in \mathcal{F}$, also $-f \in \mathcal{F}$.
@@ -2447,7 +2463,7 @@ with $x_n \geq 0$ for all $n \in \mathbb{N}$ and $\|x\|_{1} = 1$.
     For $p = 1$, we get
     \begin{equation*}
         \begin{split}
-            \mathrm{CE}_{\mathcal{F}} = P_X-\esssup_{\xi \in \Delta^{\infty}} \sup_{y \in \mathbb{N}} |\delta(\xi, y)| = P_X-\esssup_{\xi \in \Delta^{\infty}} \sup_{y \in \mathbb{N}} |\Prob(Y=y|P_X=\xi) - \xi(\{y\})|,
+            \mathrm{CE}_{\mathcal{F}} = \mu\text{-}\esssup_{\xi \in \Delta^{\infty}} \sup_{y \in \mathbb{N}} |\delta(\xi, y)| = \mu\text{-}\esssup_{\xi \in \Delta^{\infty}} \sup_{y \in \mathbb{N}} |\Prob(Y=y|P_X=\xi) - \xi(\{y\})|,
         \end{split}
     \end{equation*}
     which concludes the proof.

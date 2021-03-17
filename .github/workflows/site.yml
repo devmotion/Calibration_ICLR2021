@@ -1,0 +1,36 @@
+name: Website
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  site:
+    name: Website
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          lfs: true
+      - name: Install python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+          architecture: x64
+      # Limitation of pip: https://pythonot.github.io/index.html#pip-installation
+      - run: python -m pip install cython numpy
+      - run: python -m pip install pot
+      - uses: julia-actions/setup-julia@v1
+        with:
+          version: '1.5.3'
+      - run: |
+          julia --project=site -e '
+            using Pkg
+            Pkg.instantiate()'
+      - run: julia --project=site site/make.jl
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
+          PYTHON: python

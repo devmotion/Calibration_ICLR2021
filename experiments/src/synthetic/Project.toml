@@ -1,0 +1,17 @@
+[deps]
+CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
+CalibrationErrors = "33913031-fe46-5864-950f-100836f47845"
+CalibrationErrorsDistributions = "20087e1a-bb94-462b-b900-33d17a750383"
+CalibrationTests = "2818745e-0823-50c7-bc2d-405ac343d48b"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+FillArrays = "1a297f60-69ca-5386-bcde-b61e274b549b"
+ProgressLogging = "33c8b6b6-d38a-422a-b730-caa89a2f386c"
+Query = "1a8c2f83-1ff3-5112-b086-8aa67b057ba1"
+Showoff = "992d4aef-0814-514b-bc4d-f2e9a6c4116f"
+StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
+TerminalLoggers = "5d786b92-1e48-4d6f-9151-6b4477ca9bed"
+
+[compat]
+julia = "=1.5.3"
