@@ -157,11 +157,11 @@ wsavefig("figures/ols/quantiles.pdf") #jl
 # We compute a $p$-value estimate of the null hypothesis that model $P$ is calibrated using
 # an estimation of the quantile of the asymptotic distribution of
 # $n \widehat{\mathrm{SKCE}}_{k,n}$ with 100000 bootstrap samples on the validation data
-# set. Kernel $k$ is chosen as a tensor product kernel of two Gaussian kernels
+# set. Kernel $k$ is chosen as the tensor product kernel
 # ```math
 # \begin{aligned}
 # k\big((p, y), (p', y')\big) &= \exp{\big(- W_2(p, p')\big)} \exp{\big(-(y - y')^2/2\big)} \\
-# &= \exp{\big(-\sqrt{(m_p - m_{p'})^2 - (\sigma_p - \sigma_{p'})^2}\big)} \exp{\big( - (y - y')^2/2\big)},
+# &= \exp{\big(-\sqrt{(m_p - m_{p'})^2 + (\sigma_p - \sigma_{p'})^2}\big)} \exp{\big( - (y - y')^2/2\big)},
 # \end{aligned}
 # ```
 # where $W_2$ is the 2-Wasserstein distance and $m_p, m_{p'}$ and $\sigma_p, \sigma_{p'}$

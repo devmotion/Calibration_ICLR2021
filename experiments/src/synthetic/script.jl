@@ -102,11 +102,11 @@ end
 #
 # We perform an evaluation of the convergence and computation time of the biased estimator
 # $\widehat{\mathrm{SKCE}}_k$, the unbiased estimator $\widehat{\mathrm{SKCE}}_{k,B}$ with
-# blocks of size $B \in \{2, \sqrt{n}, n\}$. We use a tensor product kernel
+# blocks of size $B \in \{2, \sqrt{n}, n\}$. We use the tensor product kernel
 # ```math
 # \begin{aligned}
 # k\big((p, y), (p', y')\big) &= \exp{\big(- W_2(p, p')\big)} \exp{\big(-(y - y')^2/2\big)} \\
-# &= \exp{\big(-\sqrt{(m_p - m_{p'})^2 - (\sigma_p - \sigma_{p'})^2}\big)} \exp{\big( - (y - y')^2/2\big)},
+# &= \exp{\big(-\sqrt{(m_p - m_{p'})^2 + (\sigma_p - \sigma_{p'})^2}\big)} \exp{\big( - (y - y')^2/2\big)},
 # \end{aligned}
 # ```
 # where $W_2$ is the 2-Wasserstein distance and $m_p, m_{p'}$ and $\sigma_p, \sigma_{p'}$

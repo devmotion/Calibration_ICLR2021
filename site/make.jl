@@ -42,7 +42,7 @@ function preprocess(content)
 #     [this Project.toml file](@__REPO_ROOT_URL__/experiments/src/@__NAME__/Project.toml)
 #     and [this Manifest.toml file](@__REPO_ROOT_URL__/experiments/src/@__NAME__/Manifest.toml).
 #
-#     [The Github repository](@__REPO_ROOT_URL__) contain [more
+#     [The Github repository](@__REPO_ROOT_URL__) contains [more
 #     detailed instructions](@__REPO_ROOT_URL__/experiments/README.md) and a
 #     `nix` project environment with a pinned Julia binary for improved reproducibility.
 #md #
