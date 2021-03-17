@@ -93,4 +93,8 @@ if islink(joinpath(@__DIR__, "build", "generated", "data"))
     rm(joinpath(@__DIR__, "build", "generated", "data"))
 end
 
-deploydocs(; repo="github.com/devmotion/Calibration_ICLR2021.git", push_preview=true)
+deploydocs(;
+    repo="github.com/devmotion/Calibration_ICLR2021.git",
+    push_preview=true,
+    devbranch="main",
+)
