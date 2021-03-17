@@ -251,7 +251,6 @@ appear close to being calibrated albeit being uncalibrated according to \cref{de
     the null hypothesis that model $P$ is calibrated at a significance level of
     $\alpha = 0.05$ ($p < 0.05$). See~\cref{app:ols} for details.}%
     \label{fig:ols_motivation}
-    %\vspace{-0.5\baselineskip}
 \end{figure}
 
 \Cref{fig:ols_motivation} also raises the question of how to assess
@@ -686,23 +685,6 @@ shows a decreased test power although being computationally much more efficient.
     samples from models with targets of dimension $d = 10$. The dashed black line
     indicates the set signficance level $\alpha = 0.05$.}%
     \label{fig:synthetic_tests_10_main}
-    \vspace{-\baselineskip}
-\end{figure}
-
-\begin{figure}[!hbtp]
-    \centering
-    \includegraphics[scale=0.35]{figures/friedman/statsplot_zoom.pdf}
-    \caption{Mean squared error (MSE), average negative log-likelihood (NLL),
-    $\widehat{\mathrm{SKCE}}_k$ (SKCE (biased)), and $p$-value approximation ($p$-value) of
-    ten Gaussian predictive models for the Friedman~1 regression problem versus
-    the number of training iterations.
-    Evaluations on the training data set (100 samples) are displayed in green
-    and orange, and on the test data set (50 samples) in blue and purple.
-    The green and blue line and their surrounding bands represent
-    the mean and the range of the evaluations of the ten models. The orange and
-    purple lines visualize the evaluations of the ensemble models.}%
-    \label{fig:friedman1_zoom}
-    \vspace{-\baselineskip}
 \end{figure}
 
 \subsection{Friedman 1 regression problem}
@@ -725,6 +707,21 @@ $\mathrm{SKCE}_k$ and the $p$-values allow to focus on calibration specifically,
 whereas MSE indicates accuracy only and NLL, as any proper scoring rule~\citep{Broecker2009}, provides a summary of calibration and accuracy. The estimation
 of $\mathrm{SKCE}_k$ in addition to NLL could serve as another source of information
 for early stopping and model selection.
+
+\begin{figure}[!hbtp]
+    \centering
+    \includegraphics[scale=0.35]{figures/friedman/statsplot_zoom.pdf}
+    \caption{Mean squared error (MSE), average negative log-likelihood (NLL),
+    $\widehat{\mathrm{SKCE}}_k$ (SKCE (biased)), and $p$-value approximation ($p$-value) of
+    ten Gaussian predictive models for the Friedman~1 regression problem versus
+    the number of training iterations.
+    Evaluations on the training data set (100 samples) are displayed in green
+    and orange, and on the test data set (50 samples) in blue and purple.
+    The green and blue line and their surrounding bands represent
+    the mean and the range of the evaluations of the ten models. The orange and
+    purple lines visualize the evaluations of the ensemble models.}%
+    \label{fig:friedman1_zoom}
+\end{figure}
 
 \section{Conclusion}
 
