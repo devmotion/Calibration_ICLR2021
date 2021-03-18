@@ -3,6 +3,10 @@
 *Repository of the paper
 ["Calibration tests beyond classification"](https://openreview.net/forum?id=-bxf89v3Nx)*
 
+[![](https://img.shields.io/badge/show-website-brightgreen)](https://devmotion.github.io/Calibration_ICLR2021)
+
+![](https://devmotion.github.io/Calibration_ICLR2021/dev/generated/figures/friedman/statsplot_zoom.svg)
+
 ## Overview
 
 This repository accompanies the paper
@@ -14,3 +18,6 @@ by [David Widmann](http://www.it.uu.se/katalog/davwi492),
 It contains the source code of the paper, the experiments therein, and the webpage,
 in the folders [`paper`](./paper), [`experiments`](./experiments), and [`site`](./site),
 respectively.
+
+Automatically generated HTML output and Jupyter notebooks of the experiments are
+available on the [website](https://devmotion.github.io/Calibration_ICLR2021/).
