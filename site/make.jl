@@ -36,15 +36,15 @@ function preprocess(content)
 #nb # HTML output can be viewed [here](https://devmotion.github.io/Calibration_ICLR2021/dev/generated/@__NAME__/),
 # and the plain script output can be found [here](./@__NAME__.jl).
 # 
-#md # !!! note
-#     If you want to run the experiments, make sure you have an identical environment.
-#     Please use Julia $(VERSION) and activate and instantiate the environment using
-#     [this Project.toml file](@__REPO_ROOT_URL__/experiments/src/@__NAME__/Project.toml)
-#     and [this Manifest.toml file](@__REPO_ROOT_URL__/experiments/src/@__NAME__/Manifest.toml).
-#
-#     [The Github repository](@__REPO_ROOT_URL__) contains [more
-#     detailed instructions](@__REPO_ROOT_URL__/experiments/README.md) and a
-#     `nix` project environment with a pinned Julia binary for improved reproducibility.
+#note # !!!
+#note # If you want to run the experiments, make sure you have an identical environment.
+#note # Please use Julia $(VERSION) and activate and instantiate the environment using
+#note # [this Project.toml file](@__REPO_ROOT_URL__/experiments/src/@__NAME__/Project.toml)
+#note # and [this Manifest.toml file](@__REPO_ROOT_URL__/experiments/src/@__NAME__/Manifest.toml).
+#note #
+#note # [The Github repository](https://github.com/devmotion/Calibration_ICLR2021/) contains
+#note # [more detailed instructions](@__REPO_ROOT_URL__/experiments/README.md) and a
+#note # `nix` project environment with a pinned Julia binary for improved reproducibility.
 #md #
 #md # ```@setup @__NAME__
 #md # using Pkg: Pkg
@@ -54,7 +54,21 @@ function preprocess(content)
 #
         """,
     )
-    return replace(content, r"^# # [^\n]*"m => sub; count=1)
+    return replace(content, r"^# # .*$"m => sub; count=1)
+end
+
+# Add admonitions
+function md_note(content)
+    return replace(
+        replace(content, r"^#note # !!!$"m => "#md # !!! note"),
+        r"^#note #(.*)$"m => s"#md #    \1",
+    )
+end
+function nb_note(content)
+    return replace(
+        replace(content, r"^#note # !!!$"m => "#nb # > **Note**"),
+        r"^#note #(.*)$"m => s"#nb # >\1",
+    )
 end
 
 for name in EXPERIMENTS
@@ -65,8 +79,22 @@ for name in EXPERIMENTS
         Pkg.instantiate()
 
         # Export and execute output formats
-        Literate.markdown(file, OUTPUT; name=name, documenter=true, preprocess=preprocess)
-        Literate.notebook(file, OUTPUT; name=name, documenter=true, preprocess=preprocess)
+        Literate.markdown(
+            file,
+            OUTPUT;
+            name=name,
+            documenter=true,
+            preprocess=md_note ∘ preprocess,
+            repo_root_url="https://github.com/devmotion/Calibration_ICLR2021/blob/main",
+        )
+        Literate.notebook(
+            file,
+            OUTPUT;
+            name=name,
+            documenter=true,
+            preprocess=nb_note ∘ preprocess,
+            repo_root_url="https://github.com/devmotion/Calibration_ICLR2021/blob/main",
+        )
         Literate.script(file, OUTPUT; name=name, documenter=true)
     end
 end
