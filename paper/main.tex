@@ -86,6 +86,7 @@
 \DeclareMathOperator{\Exp}{\mathbb{E}}
 \DeclareMathOperator{\Var}{\mathbb{V}}
 \DeclareMathOperator{\Cov}{\mathbb{C}}
+\DeclareMathOperator{\Ber}{Ber}
 \DeclareMathOperator*{\esssup}{ess\,sup}
 \DeclareMathOperator{\argmax}{arg\,max}
 
@@ -211,9 +212,12 @@ some authors~\citep{Naeini2015,Guo2017,Kumar2018} study the
 strictly weaker property of confidence calibration~\citep{Kull2019},
 which only requires
 \begin{equation}\label{eq:calibration_confidence}
-    \Prob{(Y = y | \argmax {P_X} = y)} = \max P_X \qquad \text{almost surely}
+    \Prob{(Y = \argmax{P_X} | \max P_X)} = \max P_X \qquad \text{almost surely}.
 \end{equation}
-to hold for every target $y$.
+This notion of calibration corresponds to calibration according to \cref{def:calibration}
+for a reduced problem with binary targets
+$\widetilde{Y} \coloneqq \mathbbm{1}(Y = \argmax{P_X})$ and Bernoulli
+distributions $\widetilde{P}_X \coloneqq \Ber(\max P_X)$ as probabilistic models.
 
 For real-valued targets, \cref{def:calibration} coincides with the
 so-called distribution-level calibration by \citet{Song2019}.
