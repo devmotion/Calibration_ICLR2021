@@ -1,0 +1,595 @@
+% arara: lualatex: { shell: true }
+% arara: lualatex: { shell: true }
+% arara: lualatex: { shell: true, synctex: true }
+% arara: convert: { options: ['-density', '600', '-colorspace', 'sRGB', 'main.pdf', 'main.png'] }
+% arara: convert: { options: ['-density', '600', '-colorspace', 'sRGB', '../experiments/figures/friedman/statsplot_zoom.pdf', '-resize', '900x600', '-gravity', 'center', '-background', 'white', '-extent', '900x600', 'thumbnail.png' ] }
+\RequirePackage{luatex85}
+\documentclass[10pt]{article}
+
+% Layout
+\usepackage[a3paper,landscape]{geometry}
+
+% Math support
+\usepackage{mathtools,amssymb,dsfont}
+
+% Fonts
+\usepackage[factor=0]{microtype} % no protrusion
+\usepackage[no-math]{fontspec}
+\defaultfontfeatures{Ligatures=TeX}
+% open source alternative to Gill Sans in UU's official layout
+\usepackage[condensed,sfdefault]{gillius2}
+\newfontfamily\JuliaMono{JuliaMono-Regular.otf}[
+Path=../shared/fonts/,
+Extension=.ttf
+]
+\newfontface\JuliaMonoMedium{JuliaMono-Regular}
+\setmonofont{JuliaMonoMedium}[Contextuals=Alternate, Scale=MatchLowercase]
+\usepackage[OT1,euler-digits]{eulervm}
+
+% Languages
+\usepackage{polyglossia}
+\setdefaultlanguage{english}
+\usepackage{csquotes}
+
+% Graphics
+\usepackage{graphicx}
+\usepackage[export]{adjustbox}
+
+% Tables
+\usepackage{booktabs}
+
+% Colors
+\def\UseCMYK{true}
+\input{../shared/UUcolorPantone.tex}
+
+% QR code
+\usepackage[nolinks]{qrcode}
+
+% Better lists
+\usepackage{enumitem}
+\setlist{leftmargin=*,itemsep=0pt}
+\setlist[itemize,1]{label={\color{uured}$\blacktriangleright$}}
+
+% Boxes
+\usepackage[poster,xparse,raster]{tcolorbox}
+\tcbset{shield externalize}
+
+
+% poster settings
+\tcbposterset{
+  coverage =
+  {
+    spread,
+    interior style={color=white},
+  },
+  poster =
+  {
+    columns=10,
+    rows=1,
+  },
+  boxes =
+  {
+    enhanced standard jigsaw,
+    sharp corners,
+    boxrule=0pt,
+    leftrule=1pt,
+    rightrule=1pt,
+    lower separated=false,
+    % Colors
+    coltext=black,
+    colback=white,
+    colframe=black,
+    coltitle=black,
+    colbacktitle=uulightgrey,
+    % Fonts
+    fonttitle=\bfseries\large,
+    % Subtitles
+    subtitle style=
+    {
+      frame empty,
+      hbox,
+      coltext=white!50!uulightgrey,
+      colback=black!10!uudarkgrey,
+    },
+  }
+}
+
+% Tikz settings
+\usetikzlibrary{graphs,graphs.standard,graphdrawing,positioning,calc,patterns}
+\usegdlibrary{force}
+\usetikzlibrary{arrows}
+\tikzset{line/.style={->,>=latex'}}
+
+% Load PGFPlots
+\usepackage{pgfplots}
+\input{../shared/pgfplots_preamble.tex}
+
+% URLs
+\usepackage[pdfpagelabels=false,pageanchor=false,bookmarks=false]{hyperref}
+
+% Some abbreviations
+\newcommand*{\Prob}{\mathbb{P}}
+\newcommand*{\ECE}{\text{ECE}}
+\newcommand*{\kernelmeasure}{\text{KCE}}
+\newcommand*{\squaredkernelmeasure}{\text{SKCE}}
+
+% Highlighting
+\newcommand{\hl}[1]{\begingroup\bfseries\boldmath\color{uured}#1\endgroup}
+
+% Source code highlighting
+\tcbuselibrary{minted}
+\newtcblisting{juliaconsnippet}[1][]{%
+  enhanced jigsaw,
+  listing engine=minted,
+  minted language={lexer.py:Julia1ConsoleLexer -x},
+  minted options={autogobble,breaklines,mathescape,fontsize=\footnotesize},
+  minted style={colorful},
+  listing only,
+  breakable,
+  sharp corners,
+  colback=white,
+  boxrule=1pt,
+  leftrule=0pt,
+  rightrule=0pt,
+  left=0pt,
+  top=0pt,
+  bottom=0pt,
+  right=0pt,
+  #1
+}
+
+% Draw scratch counts
+\usepackage{luamplib}
+\newcommand{\scratchcount}[1]{%
+\begin{mplibcode}
+  beginfig(0);
+  n:= #1;
+  height := 3/5\mpdim{\normalbaselineskip};
+  span := 1/3 * height ;
+  drift := 1/10 * height ;
+  pickup pencircle scaled (1/12 * height) ;
+  def d = (uniformdeviate drift) enddef ;
+  for i := 1 upto n :
+    draw
+      if (i mod 5)=0 : ((-d-4.5span,d)--(+d-0.5span,height-d))
+      else : ((-d,+d)--(+d,height-d)) fi
+      shifted (span*i,d-drift) ;
+  endfor;
+  endfig;
+\end{mplibcode}}
+
+% Download picture from the web, if necessary
+\IfFileExists{./figures/penguins.png}{}{%
+  \write18{curl -o ./figures/penguins.png --create-dirs https://raw.githubusercontent.com/allisonhorst/palmerpenguins/69530276d74b99df81cc385f4e95c644da69ebfa/man/figures/lter_penguins.png}
+}
+
+% Metadata
+\title{Calibration tests beyond classification}
+\author{David Widmann$^\star$ Fredrik Lindsten$^\ddagger$ Dave Zachariah$^\star$}
+\date{}
+\makeatletter
+\pgfkeys{%
+  /my poster/.cd,
+  title/.initial=\@title,
+  author/.initial=\@author,
+  institute/.initial={},
+  contact/.initial={},
+  date/.initial=\@date,
+}
+\makeatother
+
+\pgfkeys{%
+  /my poster/.cd,
+  institute={$^\star$Department of Information Technology, Uppsala University, Sweden\\$^\ddagger$Division of Statistics and Machine Learning, Linköping University, Sweden},
+  contact={david.widmann@it.uu.se fredrik.lindsten@liu.se dave.zachariah@it.uu.se},
+}
+
+\pagestyle{empty}
+
+\begin{document}
+\NoHyper
+
+\begin{tcbposter}
+
+  % title
+  \posterbox[blankest,interior engine=path,halign=flush center,valign=top,
+  underlay =
+  {%
+    \node[below right,inner sep=0pt,outer sep=0pt] at (frame.north west) {\includegraphics[width=2cm]{../shared/figures/logos/UU.pdf}};%
+    \node[above right,inner sep=0pt,outer sep=0pt] at (frame.south west) {\includegraphics[width=2cm]{../shared/figures/logos/LiU.pdf}};%
+    \node[below left,inner sep=0pt,outer sep=0pt] at (frame.north east) {\includegraphics[width=2cm]{../shared/figures/logos/ICLR.pdf}};%
+    \node[above left,inner sep=0pt,outer sep=0pt] at (frame.south east) {\qrcode[height=2cm]{https://devmotion.github.io/Calibration\_ICLR2021/}};%
+  }]{name=title,column=1,span=6,below=top}{%
+    \Huge\textbf{\pgfkeysvalueof{/my poster/title}}\\[1ex]
+    \large\pgfkeysvalueof{/my poster/author}\\[1ex]
+    \normalsize\pgfkeysvalueof{/my poster/institute}%
+  }%
+
+  % footline
+  \posterbox[blankest,top=2pt,bottom=2pt,valign=center,fontupper=\ttfamily\small,interior engine=path,interior style={color=uumidgrey}%
+  ]{name=footline,column=1,span=10,above=bottom}{%
+    \pgfkeysvalueof{/my poster/date}\hfill\pgfkeysvalueof{/my poster/contact}%
+  }%
+
+  \posterbox[adjusted title={Motivation - what is a calibrated model?}]{name=calibration,column=3,span=4,below=title}{
+    \begin{tcolorbox}[colback=blondstark, halign=flush center]
+      A \hl{calibrated model} yields predictions consistent with empirically observed frequencies.
+    \end{tcolorbox}
+
+    \tcbsubtitle{Example: Classification}
+
+    Consider a probabilistic predictive model of penguin species.
+
+    \begin{adjustbox}{valign=t}
+      \begin{tikzpicture}
+        \node (model) at (0, 0)
+        {\includegraphics[height=1cm]{../shared/figures/model.pdf}};
+        \node[above=4mm of model, font=\bfseries] (label) {Model $P$};
+
+        \node[left=1cm of model] (input) {\includegraphics[width=1.5cm]{../shared/figures/measure.pdf}};
+        \node[anchor=base, font=\bfseries] at (input|-label.base) {Input $X$};
+        \draw[line] (input) -- (model);
+
+        \node[right=1cm of model] (prediction) {\includegraphics[width=3cm]{./figures/penguins.png}};
+        \node [font=\bfseries, align=center] at (label-|prediction) {Prediction $P_X$\\(distribution of target $Y$)};
+        \node [below=0mm of prediction, font=\tiny, anchor=west] {Artwork by \texttt{@allison\_horst}};
+        \draw [line] (model) -- (prediction);
+      \end{tikzpicture}
+    \end{adjustbox}%
+    \hfill%
+    \begin{minipage}[t]{0.3\linewidth}
+      The predictions $P_X$ of the model are \hl{probability distributions}, e.g.:
+
+      \begin{center}
+        \begin{tabular}{@{}ccc@{}}
+          \textcolor{Dark2-B}{\texttt{Adélie}} & \textcolor{Dark2-C}{\texttt{Chinstrap}} & \textcolor{Dark2-A}{\texttt{Gentoo}} \\ \midrule
+          80\% & 10\% & 10\% \\
+        \end{tabular}
+      \end{center}
+    \end{minipage}
+
+    If the model is calibrated we know that for all inputs with this
+    prediction the measurements correspond to an Adélie penguin 80\% of the time
+    and a Chinstrap and Gentoo penguin 10\% of the time each.
+
+    \begin{center}
+      \begin{tikzpicture}
+        \node (prediction) at (0, 0)
+        {\begin{tabular}{@{}ccc@{}}
+           \textcolor{Dark2-B}{\texttt{Adélie}} & \textcolor{Dark2-C}{\texttt{Chinstrap}} & \textcolor{Dark2-A}{\texttt{Gentoo}} \\ \midrule
+           80\% & 10\% & 10\% \\
+         \end{tabular}};
+        \node[above=1mm of prediction, font=\bfseries] (label) {Prediction $P_X$};
+
+        \node[right=1cm of prediction] (empirical)
+        {\begin{tabular}{@{}ccc@{}}
+            \textcolor{Dark2-B}{\texttt{Adélie}} & \textcolor{Dark2-C}{\texttt{Chinstrap}} & \textcolor{Dark2-A}{\texttt{Gentoo}} \\ \midrule
+            \scratchcount{8} \ldots & \scratchcount{2} \ldots & \scratchcount{1} \ldots \\
+         \end{tabular}};
+        \node[anchor=base, font=\bfseries] at (label.base-|empirical) {Empirical frequency $\Prob(Y | P_X)$};
+
+        \node[font=\boldmath\Huge, color=uured, align=center] (A) at ($(prediction.center)!0.5!(empirical.center)$) {$=$};
+        \node[above=0mm of A,font=\bfseries\Huge, color=uured, align=center] {?};
+      \end{tikzpicture}
+    \end{center}
+  }
+
+  \posterbox[adjusted title={Calibration of general models}]{name=error,column=1,span=3,between=calibration and footline}{
+    The notion of calibration can be generalized to \hl{all probabilistic predictive models}.
+
+    \begin{tcolorbox}[colback=blondstark]
+      A probabilistic predictive model $P$ is calibrated if
+      \begin{equation*}
+        \Prob(Y \,|\, P_X) = P_X \qquad \text{almost surely}.
+      \end{equation*}
+    \end{tcolorbox}
+
+    This definition captures also weaker notions such as confidence calibration and
+    applies to models with targets $Y$ in general spaces such as (but not limited to)
+    \begin{tcbraster}[blankest, raster columns=3,raster equal height=rows, halign=flush center]
+      \begin{tcolorbox}
+        $\mathbb{N}_0$\\[\baselineskip]
+        \begin{tikzpicture}[scale=0.5]
+          \begin{axis}[
+            range frame,
+            xlabel=$X$,
+            ylabel=$Y$,
+            width=1.8\linewidth,
+            domain=-20:60,
+            bar width=2,
+            ]
+            \pgfmathsetseed{1234}
+            \addplot+ [ybar, no marks, samples=20] ({x + 0.1*rand}, {round(50*rnd)});
+          \end{axis}
+        \end{tikzpicture}
+      \end{tcolorbox}
+      \begin{tcolorbox}
+        $\mathbb{R}^d$\\[\baselineskip]
+        \begin{tikzpicture}[scale=0.5]
+          \begin{axis}[
+            range frame,
+            xlabel=$X$,
+            ylabel=$Y$,
+            width=1.8\linewidth,
+            domain=-20:60,
+            ]
+            \addplot+ [no marks, samples=2] {5 + 0.1*x};
+
+            \pgfmathsetseed{1234}
+            \addplot+ [only marks, mark=*, mark size=0.75, samples=70] ({x + 0.1*rand}, {5 + 0.1*x + 3*rand});
+          \end{axis}
+        \end{tikzpicture}
+      \end{tcolorbox}
+      \begin{tcolorbox}
+        graphs\\[\baselineskip]
+        \begin{tikzpicture}[scale=0.5]
+          \pgfmathsetseed{1234}
+          \graph [spring layout, nodes={draw, scale=0.5, circle, fill=Dark2-B, as=}, n=25, p=0.3] {
+            subgraph I_n;
+            subgraph G_np
+          };
+        \end{tikzpicture}
+      \end{tcolorbox}
+    \end{tcbraster}
+
+    However, for general models the conditional distributions $\Prob(Y \,|\, P_X)$
+    \begin{itemize}
+    \item can be \hl{arbitrarily complex}---it is not a design choice!
+    \item are \hl{difficult to estimate}---usually a single observation for each prediction!
+    \end{itemize}
+
+    \tcbsubtitle{Alternative formulation}
+
+    We propose the following reformulation of the calibration property:
+
+    \begin{tcolorbox}[colback=blondstark]
+      A model $P$ is calibrated if $(P_X, Y) \stackrel{d}{=} (P_X, Z_X)$ where $Z_X \,|\, P_X \sim P_X$.
+    \end{tcolorbox}
+
+    \begin{itemize}
+    \item No explicit conditional distributions $\Prob(Y \,|\, P_X)$
+    \item Suggests discrepancy of $\Prob(P_X, Y)$ and $\Prob(P_X, Z_X)$
+      as calibration measure
+    \item Hypothesis testing of calibration is a special two-sample problem
+    \end{itemize}
+  }
+
+  \posterbox[adjusted title=The paper in 30 seconds, fontupper=\large, colback=blondmellan]{name=summary,column=1,span=2,between=title and error}{
+    \begin{itemize}
+    \item We propose \hl{calibration errors} and their estimators and
+      \hl{calibration tests} for \hl{all probabilistic predictive models}.
+    \item For classification models, existing methods are reformulated
+      more intuitively.
+    \item We demonstrate calibration analysis for models with Gaussian
+      predictions and ensembles of such models.
+    \end{itemize}
+
+    \tcbsubtitle{Take with you}
+    \begin{itemize}
+    \item First unified framework for calibration analysis of general predictive models
+    \item Calibration tests are special two-sample problems
+    \item Readily available software packages with estimators and hypothesis tests
+    \end{itemize}
+  }
+
+  \posterbox[adjusted title={Calibration analysis}]{name=analysis,column=4,span=3,between=calibration and footline}{
+    \tcbsubtitle{Calibration errors}
+
+    To minimize the assumptions about the involved distributions, we use integral
+    probability metrics to define a general class of calibration errors. The $\kernelmeasure$
+    is an example of this class:
+
+    \begin{tcolorbox}[colback=blondstark]
+      The \hl{kernel calibration error} ($\kernelmeasure$) of model $P$ with respect to
+      a real-valued kernel $k$ is defined as
+      \begin{equation*}
+        \kernelmeasure_k = \text{MMD}_k\big(\Prob(P_X, Y), \Prob(P_X, Z_X)\big).
+      \end{equation*}
+    \end{tcolorbox}
+
+    \begin{itemize}
+    \item Applies to \hl{all probabilistic predictive models}
+    \item Coincides with previously proposed $\kernelmeasure$ for classification models
+      but uses \hl{more intuitive real-valued kernels} instead of matrix-valued kernels
+    \item Existing \hl{(un)biased and consistent estimators} of the MMD can be
+      \hl{improved by marginalizing} out $Z_X$ and \hl{avoid challenging estimation} of $\Prob(Y|P_X)$
+    \end{itemize}
+
+    \tcbsubtitle{Calibration tests}
+
+    \begin{minipage}[t]{0.4\linewidth}
+      In general, calibration errors have no meaningful unit or scale.
+      This renders it difficult to interpret an estimated non-zero error.
+
+      We can use the calibration error estimates to perform a
+      statistical test of the null hypothesis
+    \end{minipage}%
+    \hfill%
+    \begin{adjustbox}{valign=t}
+      \begin{tikzpicture}[
+        scale=0.5,
+        declare function={normal(\m,\s)=1/(2*\s*sqrt(pi))*exp(-(x-\m)^2/(2*\s^2));},
+        declare function={binormal(\ma,\sa,\mb,\sb,\p)=(\p*normal(\ma,\sa)+(1-\p)*normal(\mb,\sb));}
+        ]
+
+        \begin{axis}[
+          range frame,
+          domain = -0.1:0.2,
+          no marks,
+          xlabel = calibration error estimate,
+          ylabel = density,
+          %grid=major,
+          ymin = 0,
+          tick label style={font=\tiny},
+          label style={font=\small},
+          width = \textwidth,
+          height = 0.38\textwidth,
+          name = axis,
+          % legend cell align=left,
+          legend columns=2,
+          legend to name=pvalues,
+          legend style=
+          {
+            fill=none,
+            draw=none,
+            inner sep={0pt},
+            font=\small,
+          }
+          ]
+
+          \draw[Dark2-A, thick] ({axis cs:0.07, 0}|-{rel axis cs:0,1}) -- ({axis cs:0.07,0}|-{rel axis cs:0,0}) node [at end, above, anchor=south east, sloped, font=\small] {observed};
+          \draw[Dark2-B, thick] ({axis cs:0, 0}|-{rel axis cs:0,1}) -- ({axis cs:0,0}|-{rel axis cs:0,0}) node [at end, above, anchor=south east, sloped, font=\small] {calibrated};
+
+          % mixture model of normal distributions
+          \addplot+ [color=Dark2-B, dashed, thick, samples=31, smooth, name path=A] {binormal(-0.05,0.01,0.05,0.03,0.5)};
+          \addlegendentry{distribution under $H_0$};
+
+          % indicate p-value
+          \path [name path=B] ({rel axis cs:0,0}|-{axis cs:0,0}) -- ({rel axis cs:1,0}|-{axis cs:0,0});
+          \addplot+ [draw=Dark2-C, pattern color=Dark2-C, pattern={north east lines}] fill between [of=A and B, soft clip={domain=0.07:0.2}];
+          \addlegendentry{p-value};
+        \end{axis}
+
+        \node[anchor=south] at ($(axis.outer north)$) {\pgfplotslegendfromname{pvalues}};
+      \end{tikzpicture}
+    \end{adjustbox}
+    \begin{equation*}
+      H_0 \coloneqq \text{\enquote{the model is calibrated}}.
+    \end{equation*}
+
+    \begin{itemize}
+    \item Applies to \hl{all probabilistic predictive models}
+    \item Existing \hl{two-sample tests} based on the MMD can be
+      \hl{improved by marginalizing} out $Z_X$
+    \end{itemize}
+  }
+
+  \posterbox[adjusted title={Experiment: Friedman 1 regression problem}]{name=experiment,column=7,span=4,below=top}{
+    \tcbsubtitle{Regression problem}
+
+    \begin{itemize}
+    \item Real-valued targets $Y$ depend on inputs $X \sim U\big([0,1]^{10}\big)$ via
+      \begin{equation*}
+        Y = 10 \sin{(\pi X_1 X_2)} + 20{(X_3 - 0.5)}^2 + 10 X_4 + 5 X_5 + \epsilon
+      \end{equation*}
+      with standard normally distributed noise $\epsilon \sim \mathcal{N}(0, 1)$
+    \item Training and test dataset of 100 and 50 i.i.d.\ samples, respectively
+    \end{itemize}
+
+    \tcbsubtitle{Modeling setup}
+
+    \begin{itemize}
+    \item Predictive model $P_X \coloneqq \mathcal{N}(f_\theta(X), \sigma^2)$, where $f_\theta$ is modeled by a fully connected neural network with parameters $\theta$ (2 hidden layers, ReLU activation functions)
+    \item Parameters $\theta$ and $\sigma$ optimized with a maximum likelihood approach
+      for 10 random initializations $\theta_0$ and $\sigma_0$
+    \end{itemize}
+
+    \tcbsubtitle{Evaluation}
+
+    In addition to the individual models, we also evaluate their ensemble.
+
+    We use consistent estimators of the squared $\kernelmeasure$ ($\squaredkernelmeasure$)
+    to estimate calibration of the models. The kernel is chosen as
+    \begin{equation*}
+      k\big((p, y), (p', y')) \coloneqq \exp{\big(-W_2(p, p')\big)} \exp{\big(- (y - y')^2/2\big)}
+    \end{equation*}
+    for targets $y, y' \in \mathbb{R}$ and predicted normal distributions $p, p'$, where
+    $W_2$ is the 2-Wasserstein distance.
+
+    \begin{center}
+      \pgfplotsset{width=0.3\textwidth, height=0.25\textwidth}
+      \begin{tikzpicture}
+        \begin{groupplot}[
+          range frame,
+          group style={
+            group size={3 by 1},
+            xticklabels at={edge bottom},
+            ylabels at={edge left},
+            horizontal sep=5em,
+          },
+          xlabel=iteration,
+          ylabel=estimate,
+          no markers,
+          width=0.3\textwidth,
+          height=0.25\textwidth,
+        ]
+
+          % Plot NLL with legend
+          \nextgroupplot[
+            title=NLL,
+            y coord trafo/.code=\pgfmathparse{arcsinh(#1)},
+            yticklabel={$\sinh(\pgfmathprintnumber{\tick})$},
+            legend columns=3,
+            legend to name=leg,
+          ]
+          \plotstats{NLL}
+          \legend{range (train),mean (train),ensemble (train),range (test),mean (test),ensemble (test)}
+
+          % Plot SKCE
+          \nextgroupplot[title=SKCE, ymode=log]
+          \plotstats[SKCE (biased)]{SKCE}
+
+          % Plot pvalues
+          \nextgroupplot[title=p-value]
+          \plotstats[p-value]{pvalue}
+        \end{groupplot}
+        % Add legend
+        \node [anchor=north] at ($(group c1r1.west |- group c1r1.outer south)!0.5!(group c3r1.east |- group c3r1.outer south)$){\pgfplotslegendfromname{leg}};
+      \end{tikzpicture}
+
+      \begin{tcolorbox}[colback=blondstark, halign=flush center]
+        NLL measures both calibration and resolution
+      \end{tcolorbox}
+    \end{center}
+  }
+
+  \begin{posterboxenv}[adjusted title={Software packages}]{name=software,column=7,span=4,between=experiment and footline}{}
+    We provide software packages for calibration analysis.
+
+    \tcbsubtitle{Julia}
+
+    \begin{tcbraster}[blankest, raster columns=2, raster equal height=rows, raster force size=false, raster column skip=5mm]
+      \begin{tcolorbox}[add to width=-3mm]
+        \begin{itemize}
+        \item \texttt{CalibrationErrors.jl}:\\
+          Estimators of calibration errors such as $\ECE$ and $\squaredkernelmeasure$
+        \item \texttt{CalibrationTests.jl}:\\
+          Statistical hypothesis tests
+        \item \texttt{CalibrationErrorsDistributions.jl}:\\
+          Definitions for more general predictive models
+          such as normal distributions and mixture models
+        \end{itemize}
+        \begin{minipage}[t]{\linewidth-3\baselineskip}
+          Documentation available at:\\
+          \url{https://devmotion.github.io/CalibrationErrors.jl/dev}
+        \end{minipage}%
+        \hfill%
+        \adjustbox{valign=t}{\qrcode[height=3\baselineskip]{https://devmotion.github.io/CalibrationErrors.jl/dev}}
+      \end{tcolorbox}
+      \begin{juliaconsnippet}[add to width=3mm]
+julia> AsymptoticSKCETest(kernel, predictions, targets)
+Asymptotic SKCE test
+--------------------
+Population details:
+    parameter of interest:   SKCE
+    value under h_0:         0.0
+    point estimate:          0.0263758
+
+Test summary:
+    outcome with 95% confidence: reject h_0
+    one-sided p-value:           <1e-99
+
+Details:
+[...]
+      \end{juliaconsnippet}
+    \end{tcbraster}
+
+    \tcbsubtitle{Python \& R}
+
+    \begin{itemize}
+    \item \texttt{pycalibration}: Python interface of the Julia packages (based on \texttt{pyjulia})
+    \item Interface for R will be available soon (will be based on \texttt{JuliaCall})
+    \end{itemize}
+  \end{posterboxenv}
+\end{tcbposter}
+\end{document}

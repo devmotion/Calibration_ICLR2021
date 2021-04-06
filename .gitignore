@@ -1,10 +1,22 @@
 # LaTeX files
 *.aux
+*.auxlock
 *.bbl
+*.bcf
 *.blg
+*.listing
 *.log
+*.nav
 *.out
+*.run.xml
+*.snm
 *.synctex.gz
+*.tcbtemp
+*.toc
+*.vrb
+_minted-*/
+cache/
+pgfshell_*
 
 # Emacs
 auto/
