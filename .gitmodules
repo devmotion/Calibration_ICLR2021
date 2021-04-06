@@ -1,0 +1,3 @@
+[submodule "shared/lexer"]
+	path = shared/lexer
+	url = https://github.com/sisl/pygments-julia.git
