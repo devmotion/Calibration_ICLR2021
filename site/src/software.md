@@ -20,9 +20,15 @@ Julia programming language](https://julialang.org/).[^Julia2017]
 * [**CalibrationTests.jl**](https://github.com/devmotion/CalibrationTests.jl):
   This package contains statistical hypothesis tests of calibration.
 
-### Python wrapper
+### Python interface
 
 The Python package [**pycalibration**](https://github.com/devmotion/pycalibration)
 is a wrapper of the Julia packages CalibrationErrors.jl, CalibrationErrorsDistributions.jl,
 and CalibrationTests.jl and exposes all their functionality to Python users with
 [PyJulia](https://github.com/JuliaPy/pyjulia).
+
+### R interface
+
+Similarly, the R package [**rcalibration**](https://github.com/devmotion/rcalibration)
+is an interface of CalibrationErrors.jl, CalibrationErrorsDistributions.jl,
+and CalibrationTests.jl for R. It is based on [JuliaCall](https://github.com/Non-Contradiction/JuliaCall).
