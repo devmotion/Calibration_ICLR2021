@@ -483,24 +483,16 @@ by \citet{Widmann2019}. The matrix-valued kernels that they employ can be
 recovered by setting $k_{\mathcal{P}}$ to a Laplacian kernel on the probability simplex and
 $k_{\mathcal{Y}}(y, y') = \delta_{y,y'}$.}
 
-By definition, so-called characteristic kernels guarantee that
-$\mathrm{KCE} = 0$ if and only if the distributions of $(P_X,Y)$
-and $(P_X,Z_X)$ are equal~\citep{Fukumizu2004,Fukumizu2008}. Many common kernels
-such as the Gaussian and Laplacian kernel on $\mathbb{R}^d$ are
-characteristic~\citep{Fukumizu2008}.\footnote{For a general discussion about
-characteristic kernels and their relation to universal kernels we refer to the 
-paper by \citet{Sriperumbudur2011}.} \Citet[Theorem~4]{Szabo2018} showed that a
-tensor product kernel $k_{\mathcal{P}} \otimes k_{\mathcal{Y}}$ is characteristic if $k_{\mathcal{P}}$ and
-$k_{\mathcal{Y}}$ are characteristic, continuous, bounded, and translation-invariant kernels
-on $\mathbb{R}^d$, but the implication does not hold for general characteristic
-kernels~\citep[Example~1]{Szabo2018}. For calibration evaluation, however,
-it is sufficient to be able to distinguish between the conditional distributions
-$\Prob(Y|P_X)$ and $\Prob(Z_X|P_X) = P_X$.
-Therefore, in contrast to the regular MMD setting, it
-is \emph{sufficient that kernel $k_{\mathcal{Y}}$ is characteristic and kernel $k_{\mathcal{P}}$ is
-non-zero almost surely}, to guarantee that $\mathrm{KCE} = 0$ if and only if model $P$ is calibrated.
-Thus it is suggestive to construct kernels on general spaces of predicted distributions 
-as
+So-called characteristic kernels guarantee that $\mathrm{KCE} = 0$ if and only if the distributions of $(P_X,Y)$ and $(P_X,Z_X)$ are equal, i.e., if model $P$ is calibrated~\citep{Fukumizu2004,Fukumizu2008}.
+Many common kernels such as the Gaussian and Laplacian kernel on $\mathbb{R}^d$ are characteristic~\citep{Fukumizu2008}.%
+\footnote{For a general discussion about characteristic kernels and their relation to universal kernels we refer to the paper by \citet{Sriperumbudur2011}.}
+For kernels $k_{\mathcal{P}}$ and $k_{\mathcal{Y}}$ their characteristic property is necessary but generally not sufficient for the tensor product kernel $k_{\mathcal{P}} \otimes k_{\mathcal{Y}}$ to be characteristic~\citep[Example~1]{Szabo2018}.
+However, if $k_{\mathcal{P}}$ and $k_{\mathcal{Y}}$ are characteristic, continuous, bounded, and translation-invariant kernels on $\mathbb{R}^{d_i}$ ($i=1,2$), then $k_{\mathcal{P}} \otimes k_{\mathcal{Y}}$ is characteristic~\citep[Theorem~4]{Szabo2018}.
+We use this property to construct characteristic tensor product kernels for regression problems.
+More generally, if $k_{\mathcal{P}}$ and $k_{\mathcal{Y}}$ are universal kernels on locally compact Polish spaces, then $k_{\mathcal{P}} \otimes k_{\mathcal{Y}}$ is universal and hence characteristic~\citep[Theorem~5]{Szabo2018}.
+In classification even the reverse implication holds, and $k_{\mathcal{P}} \otimes k_{\mathcal{Y}}$ is characteristic if and only if $k_{\mathcal{P}}$ and $k_{\mathcal{Y}}$ are universal~\citep[Corollary~3.15]{Steinwart2021}.%
+
+It is suggestive to construct kernels on general spaces of predicted distributions as
 \begin{equation}\label{eq:kernelp}
 k_{\mathcal{P}}(p, p') = \exp{\big(- \lambda d^\nu_{\mathcal{P}}(p, p') \big)},
 \end{equation}
@@ -869,7 +861,7 @@ the mean and the standard deviation of the normal distributions $p$ and $p'$ (se
 We obtain $p < 0.05$ in our experiment, and hence the calibration test rejects $H_0$ at the
 significance level $\alpha = 0.05$.
 
-\subsection{Empirical properties and computational efficiency}
+\subsection{Empirical properties and computational efficiency}\label{app:efficiency}
 
 We study two setups with $d$-dimensional targets $Y$ and normal distributions $P_X$
 of the form $\mathcal{N}(c \mathbf{1}_d, 0.1^2 \mathbf{I}_d)$ as predictions,
@@ -1008,7 +1000,7 @@ still achieves good test power for reasonably large number of samples (> 30).
 
 \clearpage
 
-\subsection{Friedman 1 regression problem}
+\subsection{Friedman 1 regression problem}\label{app:friedman}
 
 We study the so-called Friedman~1 regression problem, which was initially
 described for 200 inputs in the six-dimensional unit
@@ -1750,26 +1742,24 @@ on the spaces of predicted distributions and targets, respectively.
 
 As discussed in \cref{sec:kernel_choice}, if kernel $k$ is characteristic,
 then the kernel calibration error $\mathrm{KCE}_k$ of model $P$ is zero
-if and only if $P$ is calibrated. Unfortunately, as shown by
-\citet[Example~1]{Szabo2018}, even if $k_{\mathcal{P}}$ and $k_{\mathcal{Y}}$ are characteristic,
-the tensor product kernel $k = k_{\mathcal{P}} \otimes k_{\mathcal{Y}}$ might not be characteristic.
-However, when analyzing calibration, it is sufficient to be able to
-distinguish distributions for which the conditional distributions $\Prob(Y|P_X)$
-and $\Prob(Z_X|P_X) = P_X$ are not equal almost surely. Thus it is sufficient
-if $k_{\mathcal{Y}}$ is characteristic and $k_{\mathcal{P}}$ is non-zero almost surely.
+if and only if $P$ is calibrated.
+Unfortunately, as shown by~\citet[Example~1]{Szabo2018}, for kernels $k_{\mathcal{P}}$ and $k_{\mathcal{Y}}$ their characteristic property is necessary but generally not sufficient for the tensor product kernel $k = k_{\mathcal{P}} \otimes k_{\mathcal{Y}}$ to be characteristic.
+Hence in general stronger requirements on $k_{\mathcal{P}}$ and $k_{\mathcal{Y}}$ are needed.
+For instance, if $k_{\mathcal{P}}$ and $k_{\mathcal{Y}}$ are characteristic, continuous, bounded, and translation-invariant kernels on $\mathbb{R}^{d_i}$ ($i = 1,2$), then $k_{\mathcal{P}} \otimes k_{\mathcal{Y}}$ is characteristic~\citep[Theorem~4]{Szabo2018}.
+More generally, if $k_{\mathcal{P}}$ and $k_{\mathcal{Y}}$ are universal kernels on locally compact Polish spaces, then $k_{\mathcal{P}} \otimes k_{\mathcal{Y}}$ is characteristic~\citep[Theorem~5]{Szabo2018}.
+In classification even the reverse implication holds, and $k_{\mathcal{P}} \otimes k_{\mathcal{Y}}$ is characteristic if and only if $k_{\mathcal{P}}$ and $k_{\mathcal{Y}}$ are universal~\citep[Corollary~3.15]{Steinwart2021}.
 
-Many common kernels such as the Gaussian and Laplacian kernel on
-$\mathbb{R}^d$ are characteristic and can therefore be chosen as kernel
-$k_{\mathcal{Y}}$ for real-valued target spaces. The choice of $k_{\mathcal{P}}$ might be less obvious
+Many common kernels such as the Gaussian and Laplacian kernel on $\mathbb{R}^d$ are universal (and characteristic), and thus are an appropriate choice for kernel $k_{\mathcal{Y}}$ for real-valued target spaces.
+In classification, kernel $k_{\mathcal{Y}}$ is universal if and only if it is strictly positive definite~\citep[Section~3.3]{Sriperumbudur2011} (note that target space $\mathcal{Y}$ is finite).
+
+The choice of $k_{\mathcal{P}}$ might be less obvious
 since $\mathcal{P}$ is a space of probability distributions. Intuitively
-one might want to use kernels of the form
+one might want to generalize Gaussian and Laplacian kernels and use kernels of the form
 \begin{equation}\label{eq:kernelform}
     k_{\mathcal{P}}\big(p, p'\big) = \exp{\big(- \lambda d^\nu_{\mathcal{P}}(p, p')\big)},
 \end{equation}
 where $d_{\mathcal{P}} \colon \mathcal{P} \times \mathcal{P} \to \mathbb{R}$ is a
 metric on $\mathcal{P}$ and $\nu, \lambda > 0$ are kernel hyperparameters.
-Kernels of this form would be a generalization of the Gaussian and Laplacian
-kernel, and would clearly be non-zero almost surely.
 
 Unfortunately, this construction does not necessarily yield valid kernels.
 Most prominently, the Wasserstein distance does not lead to valid kernels $k_{\mathcal{P}}$ in general~\citep[Chapter~8.3]{Peyre2018}. However, if $d_{\mathcal{P}}(\cdot, \cdot)$
@@ -1780,6 +1770,17 @@ is a Hilbertian metric, i.e., a metric of the form
 for some Hilbert space $H$ and mapping $\phi \colon \mathcal{P} \to H$, then
 $k_{\mathcal{P}}$ in \cref{eq:kernelform} is a valid kernel for all $\lambda > 0$ and
 $\nu \in (0, 2]$~\citep[Corollary~3.3.3, Proposition~3.2.7]{Berg1984}.
+
+Non-constant radial kernels on $\mathbb{R}^d$ are universal~\citep[Theorem~17]{Micchelli2006}, and hence, with a similar reasoning as in the proof of \citet[Theorem~2.2]{Christmann2010}, $k_{\mathcal{P}}$ is universal on the metric space $(\mathcal{P}, d_{\mathcal{P}})$ for all $\lambda > 0$ and $\nu \in (0, 2]$ if $\phi$ is an injective embedding and $H = \mathbb{R}^d$ for some $d$.
+More generally, if $\phi$ is injective and $H$ is a separable Hilbert space, $k_{\mathcal{P}}$ is known to be universal on $(\mathcal{P}, d_{\mathcal{P}})$ for $\lambda > 0$ and $\nu = 2$~\citep[Theorem~2.2]{Christmann2010}.
+Note that in both cases it is required that $\phi$ is continuous.
+Continuity of $\phi$ is implied by the choice of space $(\mathcal{P}, d_{\mathcal{P}})$ but has to be shown separately if $\mathcal{P}$ is equipped with a different metric.
+
+In many machine learning applications such a mapping $\phi$ arises naturally from the parameterization of the predicted distributions.
+For instance, if a regression model predicts normal distributions of real targets, i.e., if $\mathcal{Y} = \mathbb{R}$ and $\mathcal{P} = \{ \mathcal{N}(\mu, \sigma^2) \colon \mu \in \mathbb{R}, \sigma \in \mathbb{R}_{\geq 0} \}$, one may use $H = \mathbb{R}^2$ and define
+\begin{equation*}
+    \phi\big(\mathcal{N}(\mu, \sigma^2)\big) = [\mu, \sigma]^\mathsf{T}.
+\end{equation*}
 
 \subsection{Normal distributions}
 \label{app:normal}
@@ -1829,9 +1830,8 @@ with inverse length scale $\gamma > 0$ on the space of
 targets $\mathcal{Y} = \mathbb{R}^d$
 allows us to compute $\Exp_{Z_x \sim P_x} k_{\mathcal{Y}}(Z_x, y)$ and
 $\Exp_{Z_x \sim P_x, Z_{x'} \sim P_{x'}} k_{\mathcal{Y}}(Z_x, Z_{x'})$
-analytically. Moreover, the Gaussian kernel is characteristic on
-$\mathbb{R}^d$~\citep{Fukumizu2008}. Hence, as discussed above,
-by choosing a kernel $k_{\mathcal{P}}$ that is non-zero almost surely we can
+analytically. Moreover, the Gaussian kernel is universal and characteristic on $\mathbb{R}^d$~\citep{Micchelli2006,Fukumizu2008}. Hence, as discussed above,
+by choosing an universal kernel $k_{\mathcal{P}}$ we can
 guarantee that $\mathrm{KCE}_k = 0$ if and only if model $P$ is
 calibrated.
 
@@ -1841,29 +1841,29 @@ $P_x = \mathcal{N}(\mu_x, \Sigma_x)$ and
 $P_{x'} = \mathcal{N}(\mu_{x'}, \Sigma_{x'})$ is given by
 \begin{equation*}
     W^2_2\big(P_x, P_{x'}\big)
-    = {\|\mu_x - \mu_{x'}\|}_2^2 + \mathrm{Tr}\bigg(\Sigma_x + \Sigma_{x'} - 2{\Big({\Sigma_{x'}}^{1/2} \Sigma_x {\Sigma_{x'}}^{1/2}\Big)}^{1/2}\bigg),
+    = {\|\mu_x - \mu_{x'}\|}_2^2 + \mathrm{Tr}\bigg(\Sigma_x + \Sigma_{x'} - 2{\Big({\Sigma_{x'}}^{1/2} \Sigma_x {\Sigma_{x'}}^{1/2}\Big)}^{1/2}\bigg).
 \end{equation*}
-which can be simplified to
+If $\Sigma_x \Sigma_{x'} = \Sigma_{x'} \Sigma_x$, such as for univariate normal distributions (\cref{app:ols,app:friedman}) or normal distributions with diagonal covariance matrices (\cref{app:efficiency}), this can be simplified to
 \begin{equation*}
     W^2_2\big(P_x, P_{x'}\big)
-    = {\big\|\mu_x - \mu_{x'}\big\|}_2^2 + {\Big\|\Sigma_{x}^{1/2} - \Sigma_{x'}^{1/2}\Big\|}_{\mathrm{Frob}}^2,
+    = {\big\|\mu_x - \mu_{x'}\big\|}_2^2 + {\Big\|\Sigma_{x}^{1/2} - \Sigma_{x'}^{1/2}\Big\|}_{\mathrm{Frob}}^2.
 \end{equation*}
-if $\Sigma_x \Sigma_{x'} = \Sigma_{x'} \Sigma_x$. This shows that the
-2-Wasserstein distance is a Hilbertian metric on the space of normal
-distributions. Hence as discussed above, the choice
+In this case the 2-Wasserstein distance is a Hilbertian metric on the space of normal distributions via the injective embedding
+\begin{equation*}
+    \phi\big(\mathcal{N}(\mu, \Sigma)\big) \coloneqq \big[\mu_1, \ldots, \mu_d, (\Sigma^{1/2})_{1,1}, (\Sigma^{1/2})_{1,2}, \ldots, (\Sigma^{1/2})_{d,d}\big]^\mathsf{T} \in \mathbb{R}^{d(d + 1)}.
+\end{equation*}
+Hence as discussed above, if the covariance matrices commute, the choice
 \begin{equation*}
     k_{\mathcal{P}}\big(P_x, P_{x'}\big) = \exp{\big( - \lambda W_2^\nu(P_x, P_{x'})\big)}
 \end{equation*}
-yields a valid kernel for all $\lambda > 0$ and $\nu \in (0, 2]$.
+yields a valid kernel for all $\lambda > 0$ and $\nu \in (0, 2]$, and is universal on $(\mathcal{P}, W_2)$ for all such parameter choices.
 
 Thus for all $\lambda, \gamma > 0$ and $\nu \in (0, 2]$
 \begin{equation*}
     k\big((p, y), (p', y')\big) = \exp{\big(-\lambda W^\nu_2(p, p')\big)} \exp{\Big(-\gamma {\|y-y'\|}^2_2\Big)}
 \end{equation*}
-is a valid kernel on the product space $\mathcal{P} \times \mathcal{Y}$
-of normal distributions on $\mathbb{R}^d$ and $\mathbb{R}^d$ that allows to evaluate
-$h\big((p, y), (p', y')\big)$ analytically and guarantees that $\mathrm{KCE}_k = 0$
-if and only if model $P$ is calibrated.
+is a valid and characteristic kernel on the product space $(\mathcal{P}, W_2) \times (\mathcal{Y}, \|.\|_2)$ where $\mathcal{Y} \subset \mathbb{R}^d$ and $\mathcal{P}$ is a space of normal distributions on $\mathbb{R}^d$ with commuting covariance matrices.
+For these kernels $k$, $h\big((p, y), (p', y')\big)$ can be evaluated analytically and it is guaranteed that $\mathrm{KCE}_k = 0$ if and only if model $P$ is calibrated.
 
 \subsection{Laplace distributions}
 \label{app:laplace}
@@ -1956,21 +1956,22 @@ computed in closed form and is given by
 \begin{equation*}
     W^2_2\big(P_x, P_{x'}\big) = {(\mu_x - \mu_{x'})}^2 + 2{(\beta_x - \beta_{x'})}^2.
 \end{equation*}
-Thus we see that the 2-Wasserstein distance is also a Hilbertian metric
-on the space of Laplace distributions, and hence
+Thus we see that the 2-Wasserstein distance is a Hilbertian metric on the space of Laplace distributions via the embedding
+\begin{equation*}
+    \phi\big(\mathcal{L}(\mu, \beta)\big) \coloneqq [\mu, \sqrt{2}\beta]^\mathsf{T}.
+\end{equation*}
+Hence, as discussed above,
 \begin{equation*}
     k_{\mathcal{P}}\big(P_x, P_{x'}\big) = \exp{\big(- \lambda W_2^\nu(P_x, P_{x'})\big)}
 \end{equation*}
-is a valid kernel for $0 < \nu \leq 2$ and all $\lambda > 0$.
+is a valid and universal kernel on $(\mathcal{P}, W_2)$ for $0 < \nu \leq 2$ and all $\lambda > 0$.
 
-Therefore, as discussed above, for all $\lambda, \gamma > 0$ and $\nu \in (0, 2]$
+Therefore for all $\lambda, \gamma > 0$ and $\nu \in (0, 2]$
 \begin{equation*}
     k\big((p, y), (p', y')\big) = \exp{\big(-\lambda W^\nu_2(p, p')\big)} \exp{\big(-\gamma |y-y'|\big)}
 \end{equation*}
-is a valid kernel on the product space $\mathcal{P} \times \mathcal{Y}$
-of Laplace distributions and $\mathbb{R}$ that allows to evaluate
-$h\big((p, y), (p', y')\big)$ analytically and guarantees that $\mathrm{KCE}_k = 0$
-if and only if model $P$ is calibrated.
+is a valid and characteristic kernel on the product space $(\mathcal{P}, W_2) \times (\mathcal{Y}, |.|)$ where $\mathcal{Y} \subset \mathbb{R}$ and $\mathcal{P}$ is a space of Laplace distributions.
+For these kernels $k$, $h\big((p, y), (p', y')\big)$ can be evaluated analytically and guarantees that $\mathrm{KCE}_k = 0$ if and only if model $P$ is calibrated.
 
 \subsection{Predicting mixtures of distributions}
 \label{app:mixture}
@@ -2191,7 +2192,7 @@ As discussed above, if metric $d_{\mathcal{P}}$ is of the form in
 \end{equation*}
 are valid kernels on $\mathcal{P}$ for all $\lambda > 0$ and $\nu \in (0, 2]$.
 
-Thus taken together, if $k_{\mathcal{Y}}$ is a characteristic kernel on the
+Thus taken together, if $k_{\mathcal{Y}}$ is a kernel on the
 target space $\mathcal{Y}$ and $d(\cdot, \cdot)$ is a Hilbertian
 metric on the space of mixture components, then for all $s \in [1, \infty)$, $\lambda > 0$,
 and $\nu \in (0, 2]$
@@ -2200,8 +2201,8 @@ and $\nu \in (0, 2]$
 \end{equation*}
 is a valid kernel on the product space $\mathcal{P} \times \mathcal{Y}$
 of mixture distributions and targets that allows to evaluate $h\big((p, y), (p', y')\big)$
-analytically and guarantees that $\mathrm{KCE}_k = 0$ if and only if
-model $P$ is calibrated.
+analytically.
+Moreover, if $k_\mathcal{Y}$ and $k_\mathcal{P}$ are universal kernels, then $k$ is characteristic and hence $\mathrm{KCE}_k = 0$ if and only if model $P$ is calibrated.
 
 \section{Classification as a special case}
 \label{app:classification}
